@@ -8,7 +8,7 @@ ZOMBIE_FOLDER = os.path.join(DIR_ROOT, 'zombie_images')
 class NormZombie(pygame.sprite.Sprite):
     sheet_walking = pygame.image.load(os.path.join(ZOMBIE_FOLDER, 'walking-zombie.png'))
     sheet_eating = pygame.image.load(os.path.join(ZOMBIE_FOLDER, 'eating-zombie.png'))
-    speed = -0.25
+    speed = -0.1
     HP = 60
     dps = 10
     x_size = 49

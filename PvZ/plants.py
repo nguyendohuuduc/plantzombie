@@ -6,6 +6,45 @@ SEED_FOLDER = os.path.join(DIR_ROOT, 'card_images')
 PLANT_FOLDER = os.path.join(DIR_ROOT, 'plant_images')
 BULLET_FOLDER = os.path.join(DIR_ROOT, 'bullet_images')
 ### PEASHOOTER
+class Wallnut_card(pygame.sprite.Sprite):
+    image = pygame.image.load(os.path.join(SEED_FOLDER,'wallnut_card.png'))
+    x_size = 40
+    y_size = 57
+    cooldown = 8000
+    cost = 50
+
+    def __init__(self, x=180, y=20, available = True):
+        super(Wallnut_card, self).__init__()
+        self.image = Wallnut_card.image
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+        self.available = available
+        self.cooldown = Wallnut_card.cooldown
+        self.last = pygame.time.get_ticks()
+        self.signature = 2
+
+    def update(self, new_x, new_y):
+        self.rect.x = new_x
+        self.rect.y = new_y
+
+
+class Wallnut(pygame.sprite.Sprite):
+    sheet = pygame.image.load(os.path.join(PLANT_FOLDER, 'wallnutsheet.png'))
+    x_size = 60
+    y_size = 60
+    HP = 120
+    frame_num = int(sheet.get_width() / x_size)
+
+    def __init__(self):
+        super(Wallnut, self).__init__()
+        self.last = pygame.time.get_ticks()
+        self.HP = Wallnut.HP
+        self.frames = []
+        for i in range(Wallnut.frame_num):
+            self.frames.append(Wallnut.sheet.subsurface(i * Wallnut.x_size, 0, Wallnut.x_size, Wallnut.y_size))
+
+
 class Peashooter_card(pygame.sprite.Sprite):
     image = pygame.image.load(os.path.join(SEED_FOLDER,'peashooter_card.jpg'))
     x_size = 40

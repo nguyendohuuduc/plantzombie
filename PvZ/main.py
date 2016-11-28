@@ -44,6 +44,7 @@ class SunBox(others.SunBox):
         self.sun_capacity += sun_amount
         self.add_to_screen()
 
+
 class Shovel(others.Shovel):
 
     def __init__(self, x =457, y=20):
@@ -56,7 +57,47 @@ class Shovel(others.Shovel):
         gameDisplay.blit(self.image,[self.rect.x, self.rect.y, Shovel.width, Shovel.height])
 
 
+class Wallnut_card(plants.Wallnut_card):
+
+    def __init__(self, x = 180, y=20, available = False):
+        super(Wallnut_card, self).__init__(x=x, y=y,available=available)
+        self.add_to_screen()
+        allSprite.add(self)
+        cardSprite.add(self)
+
+    def add_to_screen(self):
+        gameDisplay.blit(self.image, [self.rect.x, self.rect.y, Wallnut_card.x_size, Wallnut_card.y_size])
+
+
+class Wallnut(plants.Wallnut):
+
+    def __init__(self, x, y):
+        super(Wallnut, self).__init__()
+        self.image = self.frames[0]
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+        self.add_to_screen()
+        allSprite.add(self)
+        plantSprite.add(self)
+
+    def add_to_screen(self):
+        gameDisplay.blit(self.image,[self.rect.x, self.rect.y, Wallnut.x_size, Wallnut.y_size])
+
+    def update(self):
+        print(self.HP)
+        if self.HP <= 90:
+            self.image = self.frames[1]
+        if self.HP <= 60:
+            self.image = self.frames[2]
+        if self.HP <= 30:
+            self.image = self.frames[3]
+        if self.HP <= 0:
+            self.kill()
+
+
 class Sunflower_card(plants.Sunflower_card):
+
     def __init__(self, x=130, y=20, available = False):
         super(Sunflower_card, self).__init__(x=x, y=y, available=available)
         self.add_to_screen()
@@ -311,9 +352,11 @@ def gameloop():
 
     background = gameDisplay.copy()
 
+
     sunbox = SunBox()
     Peashooter_card()
     Sunflower_card()
+    Wallnut_card()
     Shovel()
     pygame.display.update()
 
@@ -392,6 +435,16 @@ def gameloop():
                         sunbox.update(-Sunflower_card.cost)
                     else:
                         Sunflower_card(available= True)
+
+                elif Target.signature == 2:
+                    if 0 <= square_x <= 9 and 0 <= square_y <= 4 \
+                    and not pygame.sprite.spritecollide(squarelistlist[square_y][square_x], plantSprite, dokill = False):
+                        Wallnut(squarelistlist[square_y][square_x].rect.left, squarelistlist[square_y][square_x].rect.top)
+                        Wallnut_card()
+                        sunbox.update(-Wallnut_card.cost)
+                    else:
+                        Wallnut_card(available= True)
+
 
                 elif Target.signature == -1:
                     for plant in plantSprite:
