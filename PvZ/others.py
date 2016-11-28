@@ -34,17 +34,39 @@ class Sun(pygame.sprite.Sprite):
         self.last = pygame.time.get_ticks()
 
 class SunBox(pygame.sprite.Sprite):
-    image = pygame.image.load(os.path.join(OTHER_FOLDER, 'sunbox.jpg'))
+    image = pygame.image.load(os.path.join(OTHER_FOLDER, 'sunbox.png'))
     width = 62
     height = 59
+
     def __init__(self):
         super(SunBox, self).__init__()
         self.image = SunBox.image
         self.rect = self.image.get_rect()
-        self.rect.x = 0
-        self.rect.y = 0
+        self.rect.x = 15
+        self.rect.y = 17
         self.sun_capacity = 0
 
+
+class Shovel(pygame.sprite.Sprite):
+    image = pygame.image.load(os.path.join(OTHER_FOLDER, 'shovel.png'))
+    width = 56
+    height = 60
+
+    def __init__(self, x=457, y=20):
+        super(Shovel, self).__init__()
+        self.image = Shovel.image
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+        self.signature = -1
+        self.last = -1
+        self.cooldown = -1
+        self.cost = 0
+        self.available = True
+
+    def update(self, new_x, new_y):
+        self.rect.x = new_x
+        self.rect.y = new_y
 
 if __name__ == "__main__":
     print("You ran this module directly (and did not 'import' it).")

@@ -7,8 +7,9 @@ PLANT_FOLDER = os.path.join(DIR_ROOT, 'plant_images')
 BULLET_FOLDER = os.path.join(DIR_ROOT, 'bullet_images')
 ### PEASHOOTER
 class Peashooter_card(pygame.sprite.Sprite):
-    image = pygame.image.load(os.path.join(SEED_FOLDER,'peashooter_card.png'))
-    size = 40
+    image = pygame.image.load(os.path.join(SEED_FOLDER,'peashooter_card.jpg'))
+    x_size = 40
+    y_size = 55
     cooldown = 4000
     cost = 100
 
@@ -29,21 +30,23 @@ class Peashooter_card(pygame.sprite.Sprite):
 
 
 class Peashooter(pygame.sprite.Sprite):
-    image = pygame.image.load(os.path.join(PLANT_FOLDER, 'peashooter.png'))
+    sheet = pygame.image.load(os.path.join(PLANT_FOLDER, 'peashootersheet.png'))
     x_size = 60
     y_size = 60
     HP = 50
+    frame_num = int(sheet.get_width()/x_size)
 
-    def __init__(self, x, y):
+    def __init__(self):
         super(Peashooter, self).__init__()
-        self.image = Peashooter.image
-        self.rect = self.image.get_rect()
-        self.rect.x = x
-        self.rect.y = y
         self.last = pygame.time.get_ticks()
         self.between_bullet = 1000  #1 second
         self.HP = Peashooter.HP
         self.status = 'idle'
+        self.cur_patch_num = 0
+        self.frames = []
+        for i in range(Peashooter.frame_num):
+            self.frames.append(Peashooter.sheet.subsurface(i*Peashooter.x_size, 0, Peashooter.x_size, Peashooter.y_size))
+        self.counter = 0
 
 
 class Peabullet(pygame.sprite.Sprite):
@@ -63,8 +66,9 @@ class Peabullet(pygame.sprite.Sprite):
 
 
 class Sunflower_card(pygame.sprite.Sprite):
-    image = pygame.image.load(os.path.join(SEED_FOLDER, 'sunflower_card.png'))
-    size = 40
+    image = pygame.image.load(os.path.join(SEED_FOLDER, 'sunflower_card.jpg'))
+    x_size = 40
+    y_size = 56
     cooldown = 3000
     cost = 50
 

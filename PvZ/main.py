@@ -34,15 +34,26 @@ class SunBox(others.SunBox):
         allSprite.add(self)
 
     def add_to_screen(self):
-        myfont = pygame.font.SysFont(pygame.font.get_default_font(), 30)
-        scoretext=myfont.render(str(self.sun_capacity), 1,(0,0,0))
-        self.image = pygame.image.load(os.path.join(OTHER_FOLDER, 'sunbox.jpg'))
+        myfont = pygame.font.SysFont(pygame.font.get_default_font(), 20)
+        scoretext=myfont.render(str(self.sun_capacity), 1,black)
+        self.image = pygame.image.load(os.path.join(OTHER_FOLDER, 'sunbox.png'))
         gameDisplay.blit(self.image, [self.rect.x, self.rect.y, SunBox.height, SunBox.width])
-        self.image.blit(scoretext, (10, 43))
+        self.image.blit(scoretext, (25, 42))
 
     def update(self, sun_amount):
         self.sun_capacity += sun_amount
         self.add_to_screen()
+
+class Shovel(others.Shovel):
+
+    def __init__(self, x =457, y=20):
+        super(Shovel, self).__init__(x=x, y=y)
+        self.add_to_screen()
+        allSprite.add(self)
+        cardSprite.add(self)
+
+    def add_to_screen(self):
+        gameDisplay.blit(self.image,[self.rect.x, self.rect.y, Shovel.width, Shovel.height])
 
 
 class Sunflower_card(plants.Sunflower_card):
@@ -53,7 +64,7 @@ class Sunflower_card(plants.Sunflower_card):
         cardSprite.add(self)
 
     def add_to_screen(self):
-        gameDisplay.blit(self.image, [self.rect.x, self.rect.y, Peashooter_card.size, Peashooter_card.size])
+        gameDisplay.blit(self.image, [self.rect.x, self.rect.y, Peashooter_card.x_size, Peashooter_card.y_size])
 
 
 class Sunflower(plants.Sunflower):
@@ -97,13 +108,17 @@ class Peashooter_card(plants.Peashooter_card):
 
 
     def add_to_screen(self):
-        gameDisplay.blit(self.image, [self.rect.x, self.rect.y, Peashooter_card.size, Peashooter_card.size])
+        gameDisplay.blit(self.image, [self.rect.x, self.rect.y, Peashooter_card.x_size, Peashooter_card.y_size])
 
 
 class Peashooter(plants.Peashooter):
 
     def __init__(self, x, y):
-        super(Peashooter, self).__init__(x, y)
+        super(Peashooter, self).__init__()
+        self.image = self.frames[0]
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
         self.add_to_screen()
         allSprite.add(self)
         plantSprite.add(self)
@@ -122,6 +137,12 @@ class Peashooter(plants.Peashooter):
 
     def update(self):
         self.change_status()
+        self.counter += 1
+        self.image = self.frames[self.cur_patch_num]
+        if self.counter % 10 == 0:
+            self.cur_patch_num += 1
+        if self.cur_patch_num > (Peashooter.frame_num - 1):
+            self.cur_patch_num = 0
         now = pygame.time.get_ticks()
         if now - self.last >= self.between_bullet and self.status == 'working':
             self.last = now
@@ -173,7 +194,7 @@ class NormZombie(zombies.NormZombie):
         self.image = self.walking_frames[0]
         self.rect = self.image.get_rect()
         self.level = random.randint(1, 5)
-        self.rect.x = 625
+        self.rect.x = 650
         self.rect.y = 100 + self.level*80 - NormZombie.y_size
         zombieSprite.add(self)
         allSprite.add(self)
@@ -279,13 +300,21 @@ def gameloop():
         x = 0
         squarelistlist.append(squares)
 
-    pygame.draw.rect(gameDisplay, white, [0, 0, 400, 100])
+    deck_image = pygame.image.load(os.path.join(OTHER_FOLDER, 'deck.png'))
+    gameDisplay.blit(deck_image, [0, 0, 400, 100])
+    shovel_box_image = pygame.image.load(os.path.join(OTHER_FOLDER,'sky.png'))
+    gameDisplay.blit(shovel_box_image,[420, 0, 80, 100])
+    #add some tiles
+    tile_image = pygame.image.load(os.path.join(OTHER_FOLDER, 'tile.png'))
+    for i in range(5):
+        gameDisplay.blit(tile_image,[600, (100+i*80)])
 
     background = gameDisplay.copy()
 
     sunbox = SunBox()
     Peashooter_card()
     Sunflower_card()
+    Shovel()
     pygame.display.update()
 
     while not gameExit:
@@ -363,6 +392,13 @@ def gameloop():
                         sunbox.update(-Sunflower_card.cost)
                     else:
                         Sunflower_card(available= True)
+
+                elif Target.signature == -1:
+                    for plant in plantSprite:
+                        if plant.rect.collidepoint(mx, my):
+                            plant.kill()
+                            break
+                    Shovel()
 
                 Target.kill()
                 Target = None
