@@ -16,6 +16,7 @@ white = (255, 255, 255)
 black = (0, 0, 0)
 red = (255, 0, 0)
 #classes
+
 class Square(others.Square):
 
     def __init__(self, x, y):
@@ -47,7 +48,7 @@ class SunBox(others.SunBox):
 
 class Shovel(others.Shovel):
 
-    def __init__(self, x =457, y=20):
+    def __init__(self, x =437, y=20):
         super(Shovel, self).__init__(x=x, y=y)
         self.add_to_screen()
         allSprite.add(self)
@@ -56,17 +57,44 @@ class Shovel(others.Shovel):
     def add_to_screen(self):
         gameDisplay.blit(self.image,[self.rect.x, self.rect.y, Shovel.width, Shovel.height])
 
+    def move(self, new_x, new_y):
+        self.rect.x = new_x
+        self.rect.y = new_y
 
 class Wallnut_card(plants.Wallnut_card):
 
     def __init__(self, x = 180, y=20, available = False):
-        super(Wallnut_card, self).__init__(x=x, y=y,available=available)
+        super(Wallnut_card, self).__init__(available=available)
+        self.image = self.frames[0]
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
         self.add_to_screen()
         allSprite.add(self)
         cardSprite.add(self)
 
     def add_to_screen(self):
         gameDisplay.blit(self.image, [self.rect.x, self.rect.y, Wallnut_card.x_size, Wallnut_card.y_size])
+
+    def move(self, new_x, new_y):
+        self.rect.x = new_x
+        self.rect.y = new_y
+
+    def update(self):
+        now = pygame.time.get_ticks()
+        if now - self.last >= self.cooldown:
+            self.available = True
+        now = pygame.time.get_ticks()
+        if now - self.last >= self.cooldown and not self.available:
+            self.available = True
+        self.image = self.frames[self.cur_patch_num]
+        if self.available:
+            self.cur_patch_num = 0
+            self.counter = 0
+        elif not self.available:
+            if self.counter % FPS == 0:
+                self.cur_patch_num += 1
+            self.counter += 1
 
 
 class Wallnut(plants.Wallnut):
@@ -85,7 +113,6 @@ class Wallnut(plants.Wallnut):
         gameDisplay.blit(self.image,[self.rect.x, self.rect.y, Wallnut.x_size, Wallnut.y_size])
 
     def update(self):
-        print(self.HP)
         if self.HP <= 90:
             self.image = self.frames[1]
         if self.HP <= 60:
@@ -99,7 +126,11 @@ class Wallnut(plants.Wallnut):
 class Sunflower_card(plants.Sunflower_card):
 
     def __init__(self, x=130, y=20, available = False):
-        super(Sunflower_card, self).__init__(x=x, y=y, available=available)
+        super(Sunflower_card, self).__init__(available=available)
+        self.image = self.frames[0]
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
         self.add_to_screen()
         allSprite.add(self)
         cardSprite.add(self)
@@ -107,6 +138,22 @@ class Sunflower_card(plants.Sunflower_card):
     def add_to_screen(self):
         gameDisplay.blit(self.image, [self.rect.x, self.rect.y, Peashooter_card.x_size, Peashooter_card.y_size])
 
+    def move(self, new_x, new_y):
+        self.rect.x = new_x
+        self.rect.y = new_y
+
+    def update(self):
+        now = pygame.time.get_ticks()
+        if now - self.last >= self.cooldown and not self.available:
+            self.available = True
+        self.image = self.frames[self.cur_patch_num]
+        if self.available:
+            self.cur_patch_num = 0
+            self.counter = 0
+        elif not self.available:
+            if self.counter % FPS == 0:
+                self.cur_patch_num += 1
+            self.counter += 1
 
 class Sunflower(plants.Sunflower):
 
@@ -142,7 +189,11 @@ class Sunflower(plants.Sunflower):
 
 class Peashooter_card(plants.Peashooter_card):
     def __init__(self, x=80, y=20, available = False):
-        super(Peashooter_card, self).__init__(x=x, y=y, available=available)
+        super(Peashooter_card, self).__init__(available=available)
+        self.image = self.frames[0]
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
         self.add_to_screen()
         allSprite.add(self)
         cardSprite.add(self)
@@ -151,6 +202,22 @@ class Peashooter_card(plants.Peashooter_card):
     def add_to_screen(self):
         gameDisplay.blit(self.image, [self.rect.x, self.rect.y, Peashooter_card.x_size, Peashooter_card.y_size])
 
+    def move(self, new_x, new_y):
+        self.rect.x = new_x
+        self.rect.y = new_y
+
+    def update(self):
+        now = pygame.time.get_ticks()
+        if now - self.last >= self.cooldown and not self.available:
+            self.available = True
+        self.image = self.frames[self.cur_patch_num]
+        if self.available:
+            self.cur_patch_num = 0
+            self.counter = 0
+        elif not self.available:
+            if self.counter % FPS == 0:
+                self.cur_patch_num += 1
+            self.counter += 1
 
 class Peashooter(plants.Peashooter):
 
@@ -223,9 +290,12 @@ class Sun(others.Sun):
         gameDisplay.blit(self.image, [self.rect.x, self.rect.y, Sun.size, Sun.size])
 
     def update(self):
-        self.rect.y += self.y_speed
-        if self.rect.top > 500: #to improve performance
+        now = pygame.time.get_ticks()
+        if now - self.last >= 12000:
             self.kill()
+        self.rect.y += self.y_speed
+        if self.rect.bottom >= 500: #to improve performance
+            self.y_speed = 0
 
 
 class NormZombie(zombies.NormZombie):
@@ -344,7 +414,7 @@ def gameloop():
     deck_image = pygame.image.load(os.path.join(OTHER_FOLDER, 'deck.png'))
     gameDisplay.blit(deck_image, [0, 0, 400, 100])
     shovel_box_image = pygame.image.load(os.path.join(OTHER_FOLDER,'sky.png'))
-    gameDisplay.blit(shovel_box_image,[420, 0, 80, 100])
+    gameDisplay.blit(shovel_box_image,[400, 0, 80, 100])
     #add some tiles
     tile_image = pygame.image.load(os.path.join(OTHER_FOLDER, 'tile.png'))
     for i in range(5):
@@ -413,7 +483,7 @@ def gameloop():
 
 
             if MouseDown and Target:
-                Target.update(mx, my)
+                Target.move(mx, my)
 
             if MouseRelease and Target:
                 square_x = int(mx/Square.x_size)
@@ -457,15 +527,6 @@ def gameloop():
                 Target = None
 
 
-        now = pygame.time.get_ticks() #check plants' cooldown
-        for card in cardSprite:
-            if now - card.last >= card.cooldown and not card.available:
-                card.available = True
-
-        for sun in sunList:
-            if now - sun.last >= 10000: #10 seconds if unpicked, kill
-                sun.kill()
-
         MousePressed = False
         MouseRelease = False
 
@@ -473,6 +534,9 @@ def gameloop():
         bulletSprite.update()
         sunList.update()
         zombieSprite.update()
+        cardSprite.update()
+        sunList.update()
+
         for i in range(len(bool)):
             bool[i] = False
 

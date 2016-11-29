@@ -64,9 +64,6 @@ class Shovel(pygame.sprite.Sprite):
         self.cost = 0
         self.available = True
 
-    def update(self, new_x, new_y):
-        self.rect.x = new_x
-        self.rect.y = new_y
 
 if __name__ == "__main__":
     print("You ran this module directly (and did not 'import' it).")

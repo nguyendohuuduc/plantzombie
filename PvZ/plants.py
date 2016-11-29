@@ -7,26 +7,24 @@ PLANT_FOLDER = os.path.join(DIR_ROOT, 'plant_images')
 BULLET_FOLDER = os.path.join(DIR_ROOT, 'bullet_images')
 ### PEASHOOTER
 class Wallnut_card(pygame.sprite.Sprite):
-    image = pygame.image.load(os.path.join(SEED_FOLDER,'wallnut_card.png'))
+    sheet = pygame.image.load(os.path.join(SEED_FOLDER,'wallnut_card_sheet.png'))
     x_size = 40
     y_size = 57
-    cooldown = 8000
+    cooldown = 7000
     cost = 50
+    frame_num = int(sheet.get_width()/x_size)
 
-    def __init__(self, x=180, y=20, available = True):
+    def __init__(self, available = False):
         super(Wallnut_card, self).__init__()
-        self.image = Wallnut_card.image
-        self.rect = self.image.get_rect()
-        self.rect.x = x
-        self.rect.y = y
         self.available = available
         self.cooldown = Wallnut_card.cooldown
         self.last = pygame.time.get_ticks()
         self.signature = 2
-
-    def update(self, new_x, new_y):
-        self.rect.x = new_x
-        self.rect.y = new_y
+        self.cur_patch_num = 0
+        self.frames = []
+        for i in range(Wallnut_card.frame_num):
+            self.frames.append(Wallnut_card.sheet.subsurface(i*Wallnut_card.x_size, 0, Wallnut_card.x_size, Wallnut_card.y_size))
+        self.counter = 0
 
 
 class Wallnut(pygame.sprite.Sprite):
@@ -46,27 +44,24 @@ class Wallnut(pygame.sprite.Sprite):
 
 
 class Peashooter_card(pygame.sprite.Sprite):
-    image = pygame.image.load(os.path.join(SEED_FOLDER,'peashooter_card.jpg'))
+    sheet = pygame.image.load(os.path.join(SEED_FOLDER, 'peashooter_card_sheet.jpg'))
     x_size = 40
     y_size = 55
     cooldown = 4000
     cost = 100
+    frame_num = int(sheet.get_width()/x_size)
 
-    def __init__(self, x=80, y=20, available = False):
+    def __init__(self, available = False):
         super(Peashooter_card, self).__init__()
-        self.image = Peashooter_card.image
-        self.rect = self.image.get_rect()
-        self.rect.x = x
-        self.rect.y = y
         self.available = available
         self.cooldown = Peashooter_card.cooldown
         self.last = pygame.time.get_ticks()
         self.signature = 0
-
-    def update(self, new_x, new_y):
-        self.rect.x = new_x
-        self.rect.y = new_y
-
+        self.cur_patch_num = 0
+        self.frames = []
+        for i in range(Peashooter_card.frame_num):
+            self.frames.append(Peashooter_card.sheet.subsurface(i*Peashooter_card.x_size,0,Peashooter_card.x_size, Peashooter_card.y_size))
+        self.counter = 0
 
 class Peashooter(pygame.sprite.Sprite):
     sheet = pygame.image.load(os.path.join(PLANT_FOLDER, 'peashootersheet.png'))
@@ -78,7 +73,7 @@ class Peashooter(pygame.sprite.Sprite):
     def __init__(self):
         super(Peashooter, self).__init__()
         self.last = pygame.time.get_ticks()
-        self.between_bullet = 1000  #1 second
+        self.between_bullet = 1000  #1.0 second
         self.HP = Peashooter.HP
         self.status = 'idle'
         self.cur_patch_num = 0
@@ -105,26 +100,25 @@ class Peabullet(pygame.sprite.Sprite):
 
 
 class Sunflower_card(pygame.sprite.Sprite):
-    image = pygame.image.load(os.path.join(SEED_FOLDER, 'sunflower_card.jpg'))
+    sheet = pygame.image.load(os.path.join(SEED_FOLDER, 'sunflower_card_sheet.png'))
     x_size = 40
     y_size = 56
     cooldown = 3000
     cost = 50
+    frame_num = int(sheet.get_width()/x_size)
 
-    def __init__(self, x=130, y=20, available=False):
+    def __init__(self, available=False):
         super(Sunflower_card, self).__init__()
-        self.image = Sunflower_card.image
-        self.rect = self.image.get_rect()
-        self.rect.x = x
-        self.rect.y = y
         self.available = available
         self.cooldown = Sunflower_card.cooldown
         self.last = pygame.time.get_ticks()
         self.signature = 1
+        self.cur_patch_num = 0
+        self.frames = []
+        for i in range(Sunflower_card.frame_num):
+            self.frames.append(Sunflower_card.sheet.subsurface(i*Sunflower_card.x_size, 0, Sunflower_card.x_size, Sunflower_card.y_size))
+        self.counter = 0
 
-    def update(self, new_x, new_y):
-        self.rect.x = new_x
-        self.rect.y = new_y
 
 
 class Sunflower(pygame.sprite.Sprite):
