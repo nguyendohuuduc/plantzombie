@@ -5,7 +5,47 @@ DIR_ROOT = os.path.dirname(os.path.abspath(__file__))
 SEED_FOLDER = os.path.join(DIR_ROOT, 'card_images')
 PLANT_FOLDER = os.path.join(DIR_ROOT, 'plant_images')
 BULLET_FOLDER = os.path.join(DIR_ROOT, 'bullet_images')
-### PEASHOOTER
+
+
+class PotatoMine_card(pygame.sprite.Sprite):
+    sheet = pygame.image.load(os.path.join(SEED_FOLDER,'potatomine_card_sheet.png'))
+    x_size = 40
+    y_size = 57
+    cooldown = 8000
+    cost = 25
+    frame_num = int(sheet.get_width() / x_size)
+
+    def __init__(self, available=False):
+        super(PotatoMine_card, self).__init__()
+        self.available = available
+        self.cooldown = PotatoMine_card.cooldown
+        self.last = pygame.time.get_ticks()
+        self.cur_patch_num = 0
+        self.frames = []
+        for i in range(PotatoMine_card.frame_num):
+            self.frames.append(PotatoMine_card.sheet.subsurface(i * PotatoMine_card.x_size, 0, PotatoMine_card.x_size, PotatoMine_card.y_size))
+        self.counter = 0
+
+
+class PotatoMine(pygame.sprite.Sprite):
+    sheet = pygame.image.load(os.path.join(PLANT_FOLDER, 'potatominesheet.png'))
+    x_size = 60
+    y_size = 60
+    HP = 40
+    frame_num = int(sheet.get_width() / x_size)
+
+    def __init__(self):
+        super(PotatoMine, self).__init__()
+        self.last = pygame.time.get_ticks()
+        self.HP = PotatoMine.HP
+        self.deto_time = 6000
+        self.cur_patch_num = 0
+        self.frames = []
+        for i in range(PotatoMine.frame_num):
+            self.frames.append(PotatoMine.sheet.subsurface(i * PotatoMine.x_size, 0, PotatoMine.x_size, PotatoMine.y_size))
+        self.counter = 0
+
+
 class Wallnut_card(pygame.sprite.Sprite):
     sheet = pygame.image.load(os.path.join(SEED_FOLDER,'wallnut_card_sheet.png'))
     x_size = 40
@@ -19,7 +59,6 @@ class Wallnut_card(pygame.sprite.Sprite):
         self.available = available
         self.cooldown = Wallnut_card.cooldown
         self.last = pygame.time.get_ticks()
-        self.signature = 2
         self.cur_patch_num = 0
         self.frames = []
         for i in range(Wallnut_card.frame_num):
@@ -56,12 +95,12 @@ class Peashooter_card(pygame.sprite.Sprite):
         self.available = available
         self.cooldown = Peashooter_card.cooldown
         self.last = pygame.time.get_ticks()
-        self.signature = 0
         self.cur_patch_num = 0
         self.frames = []
         for i in range(Peashooter_card.frame_num):
             self.frames.append(Peashooter_card.sheet.subsurface(i*Peashooter_card.x_size,0,Peashooter_card.x_size, Peashooter_card.y_size))
         self.counter = 0
+
 
 class Peashooter(pygame.sprite.Sprite):
     sheet = pygame.image.load(os.path.join(PLANT_FOLDER, 'peashootersheet.png'))
@@ -112,13 +151,11 @@ class Sunflower_card(pygame.sprite.Sprite):
         self.available = available
         self.cooldown = Sunflower_card.cooldown
         self.last = pygame.time.get_ticks()
-        self.signature = 1
         self.cur_patch_num = 0
         self.frames = []
         for i in range(Sunflower_card.frame_num):
             self.frames.append(Sunflower_card.sheet.subsurface(i*Sunflower_card.x_size, 0, Sunflower_card.x_size, Sunflower_card.y_size))
         self.counter = 0
-
 
 
 class Sunflower(pygame.sprite.Sprite):

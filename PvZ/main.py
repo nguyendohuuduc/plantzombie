@@ -1,5 +1,5 @@
 #Always use updates. The only ones don't use update are the cards
-import pygame, plants, others, zombies, random, os
+import pygame, plants, others, zombies, random, os,time
 DIR_ROOT = os.path.dirname(os.path.abspath(__file__))
 OTHER_FOLDER = os.path.join(DIR_ROOT, 'miscellany')
 
@@ -61,6 +61,71 @@ class Shovel(others.Shovel):
         self.rect.x = new_x
         self.rect.y = new_y
 
+class PotatoMine_card(plants.PotatoMine_card):
+
+    def __init__(self, x = 230, y=20, available = False):
+        super(PotatoMine_card, self).__init__(available=available)
+        self.image = self.frames[0]
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+        self.add_to_screen()
+        allSprite.add(self)
+        cardSprite.add(self)
+
+    def add_to_screen(self):
+        gameDisplay.blit(self.image, [self.rect.x, self.rect.y, PotatoMine_card.x_size, PotatoMine_card.y_size])
+
+    def move(self, new_x, new_y):
+        self.rect.x = new_x
+        self.rect.y = new_y
+
+    def update(self):
+        now = pygame.time.get_ticks()
+        if now - self.last >= self.cooldown and not self.available:
+            self.available = True
+        self.image = self.frames[self.cur_patch_num]
+        if self.available:
+            self.cur_patch_num = 0
+            self.counter = 0
+        elif not self.available:
+            if self.counter % FPS == 0:
+                self.cur_patch_num += 1
+            self.counter += 1
+
+class PotatoMine(plants.PotatoMine):
+
+    def __init__(self, x, y):
+        super(PotatoMine, self).__init__()
+        self.image = self.frames[0]
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+        self.explodable = False
+        self.add_to_screen()
+        allSprite.add(self)
+        plantSprite.add(self)
+
+    def add_to_screen(self):
+        gameDisplay.blit(self.image, [self.rect.x, self.rect.y, PotatoMine.x_size, PotatoMine.y_size])
+
+    def exploded(self):
+        self.cur_patch_num = 2
+
+
+    def update(self):
+        self.image = self.frames[self.cur_patch_num]
+        now = pygame.time.get_ticks()
+        if self.HP <= 0:
+            self.kill()
+        if now - self.last >= self.deto_time and self.cur_patch_num != 2:
+            self.cur_patch_num = 1
+            self.explodable = True
+        if self.cur_patch_num == 2:
+            self.counter += 1
+            if self.counter % (1.5*FPS) == 0:
+                self.kill()
+
 class Wallnut_card(plants.Wallnut_card):
 
     def __init__(self, x = 180, y=20, available = False):
@@ -81,9 +146,6 @@ class Wallnut_card(plants.Wallnut_card):
         self.rect.y = new_y
 
     def update(self):
-        now = pygame.time.get_ticks()
-        if now - self.last >= self.cooldown:
-            self.available = True
         now = pygame.time.get_ticks()
         if now - self.last >= self.cooldown and not self.available:
             self.available = True
@@ -186,6 +248,7 @@ class Sunflower(plants.Sunflower):
             self.cur_patch_num = 0
         if self.HP <= 0:
             self.kill()
+
 
 class Peashooter_card(plants.Peashooter_card):
     def __init__(self, x=80, y=20, available = False):
@@ -427,7 +490,9 @@ def gameloop():
     Peashooter_card()
     Sunflower_card()
     Wallnut_card()
+    PotatoMine_card()
     Shovel()
+
     pygame.display.update()
 
     while not gameExit:
@@ -488,7 +553,7 @@ def gameloop():
             if MouseRelease and Target:
                 square_x = int(mx/Square.x_size)
                 square_y=int(my/Square.y_size)-1
-                if Target.signature == 0: #each card will have a signature
+                if isinstance(Target,Peashooter_card):
                     if 0 <= square_x <= 9 and 0 <= square_y <= 4 \
                     and not pygame.sprite.spritecollide(squarelistlist[square_y][square_x], plantSprite, dokill = False):
                         Peashooter(squarelistlist[square_y][square_x].rect.left, squarelistlist[square_y][square_x].rect.top)
@@ -497,7 +562,7 @@ def gameloop():
                     else: #do not activate cooldown, nor cost user sunScore
                         Peashooter_card(available = True)
 
-                elif Target.signature == 1:
+                elif isinstance(Target, Sunflower_card):
                     if 0 <= square_x <= 9 and 0 <= square_y <= 4 \
                     and not pygame.sprite.spritecollide(squarelistlist[square_y][square_x], plantSprite, dokill = False):
                         Sunflower(squarelistlist[square_y][square_x].rect.left, squarelistlist[square_y][square_x].rect.top)
@@ -506,7 +571,7 @@ def gameloop():
                     else:
                         Sunflower_card(available= True)
 
-                elif Target.signature == 2:
+                elif isinstance(Target, Wallnut_card):
                     if 0 <= square_x <= 9 and 0 <= square_y <= 4 \
                     and not pygame.sprite.spritecollide(squarelistlist[square_y][square_x], plantSprite, dokill = False):
                         Wallnut(squarelistlist[square_y][square_x].rect.left, squarelistlist[square_y][square_x].rect.top)
@@ -515,8 +580,16 @@ def gameloop():
                     else:
                         Wallnut_card(available= True)
 
+                elif isinstance(Target,PotatoMine_card):
+                    if 0 <= square_x <= 9 and 0 <= square_y <= 4 \
+                    and not pygame.sprite.spritecollide(squarelistlist[square_y][square_x], plantSprite, dokill=False):
+                        PotatoMine(squarelistlist[square_y][square_x].rect.left, squarelistlist[square_y][square_x].rect.top)
+                        PotatoMine_card()
+                        sunbox.update(-PotatoMine_card.cost)
+                    else:
+                        PotatoMine_card(available=True)
 
-                elif Target.signature == -1:
+                elif isinstance(Target, Shovel):
                     for plant in plantSprite:
                         if plant.rect.collidepoint(mx, my):
                             plant.kill()
@@ -548,9 +621,14 @@ def gameloop():
                 for bullet in bullets:
                     bullet.kill()
             plants = pygame.sprite.spritecollide(zombie, plantSprite, dokill = False)
+
             if plants: #a zombie can only eat a plant once at any time. so list length is 1
                 zombie.plant_collide(plants[0])
                 zombie.status = 'eating'
+                if isinstance(plants[0], PotatoMine) and plants[0].explodable:
+                    plants[0].exploded()
+                    zombie.kill()
+
             elif not plants:
                 zombie.status = 'moving'
             if zombie.rect.left <= 0:
