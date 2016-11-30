@@ -31,7 +31,7 @@ class NormZombie(pygame.sprite.Sprite):
             self.eating_frames.append(NormZombie.sheet_eating.subsurface(i*NormZombie.x_size, 0, NormZombie.x_size, NormZombie.y_size))
         self.walking_counter = 0
         self.eating_counter = 0
-
+        self.condition = []
 
 if __name__ == "__main__":
     print("You ran this module directly (and did not 'import' it).")

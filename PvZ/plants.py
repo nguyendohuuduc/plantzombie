@@ -82,6 +82,65 @@ class Wallnut(pygame.sprite.Sprite):
             self.frames.append(Wallnut.sheet.subsurface(i * Wallnut.x_size, 0, Wallnut.x_size, Wallnut.y_size))
 
 
+class SnowPea_card(pygame.sprite.Sprite):
+    sheet = pygame.image.load(os.path.join(SEED_FOLDER, 'snowpea_card_sheet.png'))
+    x_size = 40
+    y_size = 57
+    cooldown = 4000
+    cost = 175
+    frame_num = int(sheet.get_width()/x_size)
+
+    def __init__(self, available = False):
+        super(SnowPea_card, self).__init__()
+        self.available = available
+        self.cooldown = SnowPea_card.cooldown
+        self.last = pygame.time.get_ticks()
+        self.cur_patch_num = 0
+        self.frames = []
+        for i in range(SnowPea_card.frame_num):
+            self.frames.append(SnowPea_card.sheet.subsurface(i*SnowPea_card.x_size,0,SnowPea_card.x_size, SnowPea_card.y_size))
+        self.counter = 0
+
+
+class SnowPea(pygame.sprite.Sprite):
+    sheet = pygame.image.load(os.path.join(PLANT_FOLDER, 'snowpeasheet.png'))
+    x_size = 60
+    y_size = 60
+    HP = 50
+    frame_num = int(sheet.get_width()/x_size)
+
+    def __init__(self):
+        super(SnowPea, self).__init__()
+        self.last = pygame.time.get_ticks()
+        self.between_bullet = 1000  #1.0 second
+        self.HP = SnowPea.HP
+        self.status = 'idle'
+        self.cur_patch_num = 0
+        self.frames = []
+        for i in range(SnowPea.frame_num):
+            self.frames.append(SnowPea.sheet.subsurface(i*SnowPea.x_size, 0, SnowPea.x_size, SnowPea.y_size))
+        self.counter = 0
+
+
+class Snowbullet(pygame.sprite.Sprite):
+    image = pygame.image.load(os.path.join(BULLET_FOLDER, 'snowbullet.png'))
+    x_size = 20
+    y_size = 20
+    damage = 5
+    x_speed = 5
+    y_speed = 0
+    effect_time = 3000
+
+    def __init__(self, x, y):
+        super(Snowbullet, self).__init__()
+        self.image = Snowbullet.image
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+        self.effect_time = Snowbullet.effect_time
+
+
+
 class Peashooter_card(pygame.sprite.Sprite):
     sheet = pygame.image.load(os.path.join(SEED_FOLDER, 'peashooter_card_sheet.jpg'))
     x_size = 40
