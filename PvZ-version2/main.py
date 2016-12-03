@@ -204,11 +204,11 @@ class Wallnut(plants.Wallnut):
         gameDisplay.blit(self.image,[self.rect.x, self.rect.y, Wallnut.x_size, Wallnut.y_size])
 
     def update(self):
-        if self.HP <= 90:
+        if self.HP <= 120:
             self.image = self.frames[1]
-        if self.HP <= 60:
+        if self.HP <= 80:
             self.image = self.frames[2]
-        if self.HP <= 30:
+        if self.HP <= 40:
             self.image = self.frames[3]
         if self.HP <= 0:
             self.kill()
@@ -536,11 +536,12 @@ class NormZombie(zombies.NormZombie):
             if now - self.last >= Snowbullet.effect_time:
                 self.speed = NormZombie.speed
                 self.dps = NormZombie.dps
-                if self.status == 'moving':
-                    self.image = self.walking_frames[self.at_frame_walking]
-                else:
-                    self.image = self.eating_frames[self.at_frame_walking]
+                # if self.status == 'moving': ###bad logic. Why dude? It works fine without these. I think this is where the bug is
+                #     self.image = self.walking_frames[self.at_frame_walking]
+                # else:
+                #     self.image = self.eating_frames[self.at_frame_walking]
                 self.condition.remove('frost')
+
         if self.status == 'moving':
             self.walking_counter += 1
             self.eating_counter = 0
@@ -568,6 +569,84 @@ class NormZombie(zombies.NormZombie):
 
         if self.HP <= 0:
             self.kill()
+
+class PresentZombie(zombies.PresentZombie):
+
+    def __init__(self, x):
+        super(PresentZombie, self).__init__()
+        self.image = self.walking_frames1[0]
+        self.rect = self.image.get_rect()
+        self.level = random.randint(1, 5)
+        self.rect.x = x
+        self.rect.y = 100 + self.level * 80 - PresentZombie.y_size
+        self.last = 1000000000000
+        self.with_present = True
+        zombieSprite.add(self)
+        allSprite.add(self)
+
+    def bullet_collide(self, bullet):
+        self.HP -= bullet.damage
+        if isinstance(bullet, Snowbullet):  # I dont want to stack slowness
+            self.condition.append('frost')
+            self.last = pygame.time.get_ticks()
+
+    def plant_collide(self, plant):
+        plant.HP -= self.dps / FPS
+
+    def update(self):
+        now = pygame.time.get_ticks()
+        if 'frost' in self.condition:
+            if self.speed == NormZombie.speed:
+                self.speed = self.speed / 2
+                self.dps = self.dps / 2
+            if now - self.last >= Snowbullet.effect_time:
+                self.speed = NormZombie.speed
+                self.dps = NormZombie.dps
+                self.condition.remove('frost')
+
+        if self.status == 'moving' and self.with_present:
+            self.walking_counter += 1
+            self.eating_counter = 0
+            self.rect.x += self.speed
+            if self.walking_counter % 10 == 0:
+                self.at_frame_walking += 1
+            if self.at_frame_walking > (PresentZombie.frame_num1 - 1):
+                self.at_frame_walking = 0
+            self.image = self.walking_frames1[self.at_frame_walking]
+
+        elif self.status == 'eating' and self.with_present:
+            self.eating_counter += 1
+            self.walking_counter = 0
+            if self.eating_counter % 5 == 0:
+                self.at_frame_eating += 1
+            if self.at_frame_eating > (PresentZombie.frame_num2 - 1):
+                self.at_frame_eating = 0
+            self.image = self.eating_frames1[self.at_frame_eating]
+
+        elif self.status == 'moving' and not self.with_present:
+            self.rect.x += self.speed*3
+            if self.walking_counter % 10 == 0:
+                self.at_frame_walking += 1
+            if self.at_frame_walking > (PresentZombie.frame_num3 - 1):
+                self.at_frame_walking = 1
+            self.image = self.walking_frames2[self.at_frame_walking]
+            self.walking_counter += 1
+            self.eating_counter = 0
+
+        elif self.status == 'eating' and not self.with_present:
+            self.eating_counter += 1
+            self.walking_counter = 0
+            if self.eating_counter % 5 == 0:
+                self.at_frame_eating += 1
+            if self.at_frame_eating > (PresentZombie.frame_num4 - 1):
+                self.at_frame_eating = 0
+            self.image = self.eating_frames2[self.at_frame_eating]
+
+        if self.HP <= 30 and self.with_present:
+            self.with_present = False
+        if self.HP <= 0:
+            self.kill()
+
 
 #to satisfy peashooter class. Cant hide these behind a function.
 is_invaded0 = is_invaded1 = is_invaded2 = is_invaded3 = is_invaded4 = False
@@ -720,11 +799,10 @@ def gameloop():
         if counter == 20*FPS:
             NormZombie(700)
         elif counter == 30 * FPS:
-            NormZombie(700)
+            PresentZombie(700)
             planning_stage = True
 
         if planning_stage:
-            print('planning stage')
             if counter % (20 *FPS) == 0:
                 x = 0
                 for i in range(random.randint(1, 2)):
@@ -736,14 +814,14 @@ def gameloop():
            stage1 = True
 
         if stage1:
-            print('stage1')
             if counter % (8*FPS) == 0:
-                NormZombie(700)
+                PresentZombie(700)
             elif counter % (20*FPS) == 0:
                 x = 0
                 for i in range(random.randint(2, 3)):
                     NormZombie(700-x)
                     x += 10
+
 
         if counter == 110 * FPS:
             stage1 = False
@@ -755,10 +833,15 @@ def gameloop():
 
         if wave1:
             x = 0
-            for i in range(12):
+            for i in range(7):
                 zom = NormZombie(700-x)
                 first_wave_zombie.add(zom)
                 x += 7
+            x = 0
+            for i in range(2):
+                zom = PresentZombie(700-x)
+                first_wave_zombie.add(zom)
+                x+= 10
             wave1 = False #so that zombies don't ooze out in tides
 
         if wave01 and len(first_wave_zombie) == 0:
@@ -766,13 +849,13 @@ def gameloop():
             stage2 = True
 
         if stage2:
-            print('stage2')
-            if counter % (8*FPS) == 0:
+            if counter % (6*FPS) == 0:
                 NormZombie(700)
                 NormZombie(690)
             elif counter % (15*FPS) == 0:
                 x = 0
-                for i in range(random.randint(2, 4)):
+                PresentZombie(700)
+                for i in range(random.randint(1, 3)):
                     NormZombie(700 - x)
                     x += 10
 
@@ -786,10 +869,15 @@ def gameloop():
 
         if wave2:
             x = 0
-            for i in range(18):
+            for i in range(7):
                 zom = NormZombie(700-x)
                 second_wave_zombie.add(zom)
                 x+=7
+            x = 0
+            for i in range(4):
+                zom = PresentZombie(700-x)
+                second_wave_zombie.add(zom)
+                x+=5
             wave2 = False
 
         if wave02 and len(second_wave_zombie) == 0:
@@ -797,17 +885,20 @@ def gameloop():
             stage3 = True
 
         if stage3:
-            print('stage3')
             if counter % (5*FPS) == 0:
                 x = 0
-                for i in range(random.randint(2,3)):
+                for i in range(random.randint(1,3)):
                     NormZombie(700-x)
                     x += 10
             elif counter % (14*FPS) == 0:
                 x = 0
-                for i in range(random.randint(4, 5)):
+                for i in range(random.randint(2, 4)):
                     NormZombie(700-x)
                     x += 7
+                x = 0
+                for i in range(2):
+                    PresentZombie(700-x)
+                    x += 10
 
         if counter == 210 * FPS:
             stage3 = False
@@ -820,10 +911,15 @@ def gameloop():
 
         if wave3:
             x = 0
-            for i in range(18):
+            for i in range(11):
                 zom = NormZombie(700 - x)
                 final_wave_Zombie.add(zom)
                 x += 5
+            x=0
+            for i in range(5):
+                zom = PresentZombie(700-x)
+                final_wave_Zombie.add(zom)
+                x+=5
             wave3 = False
 
         if wave03 and len(final_wave_Zombie) == 0:

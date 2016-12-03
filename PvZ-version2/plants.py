@@ -70,7 +70,7 @@ class Wallnut(pygame.sprite.Sprite):
     sheet = pygame.image.load(os.path.join(PLANT_FOLDER, 'wallnutsheet.png'))
     x_size = 60
     y_size = 60
-    HP = 120
+    HP = 160
     frame_num = int(sheet.get_width() / x_size)
 
     def __init__(self):
@@ -87,7 +87,7 @@ class SnowPea_card(pygame.sprite.Sprite):
     x_size = 40
     y_size = 57
     cooldown = 4000
-    cost = 175
+    cost = 0
     frame_num = int(sheet.get_width()/x_size)
 
     def __init__(self, available = False):
