@@ -31,6 +31,28 @@ class Square(others.Square):
         gameDisplay.blit(self.image, [self.rect.x, self.rect.y, Square.x_size, Square.y_size])
 
 
+class Message(pygame.sprite.Sprite):
+    font = os.path.join(OTHER_FOLDER, 'blood_font.otf')
+
+    def __init__(self, string, color, size, time):
+        super(Message, self).__init__()
+        myFont = pygame.font.Font(Message.font, size)
+        textmessage = myFont.render(string,1, color)
+        self.image = textmessage
+        self.rect = self.image.get_rect()
+        self.rect.center = (display_width/2, display_height/2)
+        self.last = pygame.time.get_ticks()
+        self.time_last = time
+        gameDisplay.blit(self.image, [self.rect.left, self.rect.top])
+        allSprite.add(self)
+        textSprite.add(self)
+
+    def update(self):
+        now = pygame.time.get_ticks()
+        if now - self.last >= self.time_last:
+            self.kill()
+
+
 class SunBox(others.SunBox):
     def __init__(self):
         super(SunBox, self).__init__()
@@ -129,7 +151,7 @@ class PotatoMine(plants.PotatoMine):
             self.explodable = True
         if self.cur_patch_num == 2:
             self.counter += 1
-            if self.counter % (1.5*FPS) == 0:
+            if self.counter % (FPS) == 0:
                 self.kill()
 
 
@@ -455,7 +477,7 @@ class Sun(others.Sun):
 
     def update(self):
         now = pygame.time.get_ticks()
-        if now - self.last >= 12000:
+        if now - self.last >= 15000:
             self.kill()
         self.rect.y += self.y_speed
         if self.rect.bottom >= 500: #to improve performance
@@ -560,7 +582,7 @@ cardSprite = pygame.sprite.Group() #a bunch of cards
 bulletSprite = pygame.sprite.Group() #a bunch of bullets
 plantSprite = pygame.sprite.Group()
 lawnmowerSprite = pygame.sprite.Group()
-
+textSprite = pygame.sprite.Group()
 
 #function
 def display_message(message, color, y_displace = 0):
@@ -579,6 +601,7 @@ def gameloop():
     global is_invaded0, is_invaded1, is_invaded2, is_invaded3, is_invaded4
     global zombieSprite, sunList, squareList, allSprite, cardSprite, bulletSprite, plantSprite
 
+
     # Lists
     zombieSprite = pygame.sprite.Group()
     sunList = pygame.sprite.Group()
@@ -587,7 +610,9 @@ def gameloop():
     cardSprite = pygame.sprite.Group()  # a bunch of cards
     bulletSprite = pygame.sprite.Group()  # a bunch of bullets
     plantSprite = pygame.sprite.Group()
-
+    first_wave_zombie = pygame.sprite.Group()
+    second_wave_zombie = pygame.sprite.Group()
+    final_wave_Zombie = pygame.sprite.Group()
 
     counter = 0
     MousePressed = False  # to choose the card
@@ -646,8 +671,11 @@ def gameloop():
 
     pygame.display.update()
 
-    while not gameExit:
+    planning_stage = stage1 = stage2 = stage3 = message_appear0 = message_appear1 = False #stage is between waves
+    wave1 = wave2 = wave3 = False
+    wave01 = wave02 = wave03 = False
 
+    while not gameExit:
         while gameOver:
             gameDisplay.fill(white)
             display_message('Game over', red, -50)
@@ -666,8 +694,7 @@ def gameloop():
 
 
         #if you survive the final wave of zombie, you win
-        if counter/FPS >180 and len(zombieSprite)==0:
-            gameWin=True
+
         while gameWin:
             gameDisplay.fill(white)
             display_message('Game Win', red, -50)
@@ -685,34 +712,122 @@ def gameloop():
                         gameloop()
 
         counter += 1
-        if counter % (3*FPS) == 0: #create new sun every five secs. falling randomly
+        if counter % (5*FPS) == 0: #create new sun every five secs. falling randomly
             x = random.randint(0, 550)
             Sun(x=x, y=100, speed=1)
 
-        if counter % (10*FPS) == 0:
-            if counter % (60*FPS) == 0:
-                x=0
-                for i in range (0,5):
-                    NormZombie(710-x)
-                    x+=10
-            elif counter % (120*FPS) == 0:
-                x=0
-                for i in range (0,10):
-                    NormZombie(710-x)
-                    x+=10
-            elif counter % (180*FPS)==0:
-                for i in range (0,15):
-                    NormZombie(710-x)
-                    x+=10
-            elif counter % (10*FPS) == 0:
-                NormZombie(710)
-            elif counter % (20*FPS) == 0:
+
+        if counter == 20*FPS:
+            NormZombie(700)
+        elif counter == 30 * FPS:
+            NormZombie(700)
+            planning_stage = True
+
+        if planning_stage:
+            print('planning stage')
+            if counter % (20 *FPS) == 0:
+                x = 0
+                for i in range(random.randint(1, 2)):
+                    NormZombie(700-x)
+                    x += 10
+
+        if counter == 80 * FPS:
+           planning_stage = False
+           stage1 = True
+
+        if stage1:
+            print('stage1')
+            if counter % (8*FPS) == 0:
                 NormZombie(700)
-                NormZombie(650)
-            else:
-                x+=10
-                for i in range (0,2):
-                    NormZombie(710-x)
+            elif counter % (20*FPS) == 0:
+                x = 0
+                for i in range(random.randint(2, 3)):
+                    NormZombie(700-x)
+                    x += 10
+
+        if counter == 110 * FPS:
+            stage1 = False
+            Message('A huge wave of zombie is approaching!', red, 40, 3000)
+
+        elif counter == 113 * FPS:
+            wave1 = True
+            wave01 = True #to make sure
+
+        if wave1:
+            x = 0
+            for i in range(12):
+                zom = NormZombie(700-x)
+                first_wave_zombie.add(zom)
+                x += 7
+            wave1 = False #so that zombies don't ooze out in tides
+
+        if wave01 and len(first_wave_zombie) == 0:
+            wave01 = False
+            stage2 = True
+
+        if stage2:
+            print('stage2')
+            if counter % (8*FPS) == 0:
+                NormZombie(700)
+                NormZombie(690)
+            elif counter % (15*FPS) == 0:
+                x = 0
+                for i in range(random.randint(2, 4)):
+                    NormZombie(700 - x)
+                    x += 10
+
+        if counter == 170 * FPS:
+            stage2 = False
+            wave02 = True
+            Message('A huge wave of zombie is approaching!', red, 40, 3000)
+
+        elif counter == 173 *FPS:
+            wave2 = True
+
+        if wave2:
+            x = 0
+            for i in range(18):
+                zom = NormZombie(700-x)
+                second_wave_zombie.add(zom)
+                x+=7
+            wave2 = False
+
+        if wave02 and len(second_wave_zombie) == 0:
+            wave02 = False
+            stage3 = True
+
+        if stage3:
+            print('stage3')
+            if counter % (5*FPS) == 0:
+                x = 0
+                for i in range(random.randint(2,3)):
+                    NormZombie(700-x)
+                    x += 10
+            elif counter % (14*FPS) == 0:
+                x = 0
+                for i in range(random.randint(4, 5)):
+                    NormZombie(700-x)
+                    x += 7
+
+        if counter == 210 * FPS:
+            stage3 = False
+            Message('A huge wave of zombie is approaching!', red, 40, 3000)
+            wave03 = True
+        elif counter == 213 * FPS:
+            Message('Final Wave', red, 40, 2000)
+        elif counter == 215 * FPS:
+            wave3 = True
+
+        if wave3:
+            x = 0
+            for i in range(18):
+                zom = NormZombie(700 - x)
+                final_wave_Zombie.add(zom)
+                x += 5
+            wave3 = False
+
+        if wave03 and len(final_wave_Zombie) == 0:
+            gameWin = True
 
 
 
@@ -748,10 +863,6 @@ def gameloop():
             if MouseRelease and Target:
                 square_x = int(mx/Square.x_size)-1
                 square_y=int(my/Square.y_size)-1
-                print(mx)
-                print(my)
-                print(square_x)
-                print(square_y)
                 if isinstance(Target,Peashooter_card):
                     if 0 <= square_x <= 9 and 0 <= square_y <= 4 \
                     and not pygame.sprite.spritecollide(squarelistlist[square_y][square_x], plantSprite, dokill = False):
@@ -818,6 +929,7 @@ def gameloop():
         cardSprite.update()
         sunList.update()
         lawnmowerSprite.update()
+        textSprite.update()
 
         for i in range(len(bool)):
             bool[i] = False

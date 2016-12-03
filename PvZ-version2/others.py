@@ -20,7 +20,7 @@ class Square(pygame.sprite.Sprite):
 
 
 class Sun(pygame.sprite.Sprite):
-    image = pygame.image.load(os.path.join(OTHER_FOLDER, 'snowflake.png'))
+    image = pygame.image.load(os.path.join(OTHER_FOLDER, 'snowflake2.png'))
     size = 100
     y_speed = 1
 
@@ -44,7 +44,7 @@ class SunBox(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.x = 15
         self.rect.y = 17
-        self.sun_capacity = 0
+        self.sun_capacity = 50
 
 
 class Shovel(pygame.sprite.Sprite):

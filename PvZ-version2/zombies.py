@@ -10,7 +10,7 @@ class NormZombie(pygame.sprite.Sprite):
     sheet_eating = pygame.image.load(os.path.join(ZOMBIE_FOLDER, 'eating-zombie.png'))
     sheet_walking_frozen = pygame.image.load(os.path.join(ZOMBIE_FOLDER, 'walking-zombie-frozen.png'))
     sheet_eating_frozen = pygame.image.load(os.path.join(ZOMBIE_FOLDER,'eating-zombie-frozen.png'))
-    speed = -0.1
+    speed = -0.5
     HP = 50
     dps = 10
     x_size = 49
@@ -42,6 +42,7 @@ class NormZombie(pygame.sprite.Sprite):
         self.walking_counter = 0
         self.eating_counter = 0
         self.condition = []
+        self.speed = NormZombie.speed
 
 if __name__ == "__main__":
     print("You ran this module directly (and did not 'import' it).")

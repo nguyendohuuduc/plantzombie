@@ -228,7 +228,7 @@ class Sunflower(pygame.sprite.Sprite):
         super(Sunflower, self).__init__()
         self.HP = Sunflower.HP
         self.last = pygame.time.get_ticks()
-        self.between_suns = 3000  # 3 second
+        self.between_suns = 20000  # 24 seconds
         self.cur_patch_num = 0 #current frame
         self.frames = []
         for i in range(Sunflower.frame_num):
