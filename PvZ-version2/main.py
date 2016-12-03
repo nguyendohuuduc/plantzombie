@@ -87,6 +87,61 @@ class Shovel(others.Shovel):
         self.rect.y = new_y
 
 
+class Hypnoshroom_card(plants.Hypnoshroom_card):
+
+    def __init__(self, x = 330, y=20, available=False):
+        super(Hypnoshroom_card, self).__init__(available=available)
+        self.image = self.frames[0]
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+        self.add_to_screen()
+        allSprite.add(self)
+        cardSprite.add(self)
+
+    def add_to_screen(self):
+        gameDisplay.blit(self.image, [self.rect.x, self.rect.y, Hypnoshroom_card.x_size, Hypnoshroom_card.y_size])
+
+    def move(self, new_x, new_y):
+        self.rect.x = new_x
+        self.rect.y = new_y
+
+    def update(self):
+        now = pygame.time.get_ticks()
+        if now - self.last >= self.cooldown and not self.available:
+            self.available = True
+        self.image = self.frames[self.cur_patch_num]
+        if self.available:
+            self.cur_patch_num = 0
+            self.counter = 0
+        elif not self.available:
+            if self.counter % FPS == 0:
+                self.cur_patch_num += 1
+            self.counter += 1
+
+
+class Hypnoshroom(plants.Hypnoshroom):
+
+    def __init__(self, x, y):
+        super(Hypnoshroom, self).__init__()
+        self.image = self.frames[0]
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+        allSprite.add(self)
+        plantSprite.add(self)
+
+    def update(self):
+        self.image = self.frames[self.cur_patch_num]
+        if self.counter % 15 == 0:
+            self.cur_patch_num += 1
+        if self.cur_patch_num > (Hypnoshroom.frame_num-1):
+            self.cur_patch_num = 0
+        self.counter += 1
+        if self.HP <= 0:
+            self.kill()
+
+
 class PotatoMine_card(plants.PotatoMine_card):
 
     def __init__(self, x = 230, y=20, available = False):
@@ -526,6 +581,10 @@ class NormZombie(zombies.NormZombie):
 
     def plant_collide(self, plant):
         plant.HP -= self.dps/FPS
+        if plant.HP == 0 and isinstance(plant, Hypnoshroom):
+            befuddled_zombie.add(self)
+            zombieSprite.remove(self)
+            self.condition.append('muddled')
 
     def update(self):
         now = pygame.time.get_ticks()
@@ -536,11 +595,10 @@ class NormZombie(zombies.NormZombie):
             if now - self.last >= Snowbullet.effect_time:
                 self.speed = NormZombie.speed
                 self.dps = NormZombie.dps
-                # if self.status == 'moving': ###bad logic. Why dude? It works fine without these. I think this is where the bug is
-                #     self.image = self.walking_frames[self.at_frame_walking]
-                # else:
-                #     self.image = self.eating_frames[self.at_frame_walking]
                 self.condition.remove('frost')
+
+        if 'muddled' in self.condition and self.speed == NormZombie.speed:
+            self.speed = -NormZombie.speed
 
         if self.status == 'moving':
             self.walking_counter += 1
@@ -592,17 +650,24 @@ class PresentZombie(zombies.PresentZombie):
 
     def plant_collide(self, plant):
         plant.HP -= self.dps / FPS
+        if plant.HP <= 0 and isinstance(plant, Hypnoshroom):
+            befuddled_zombie.add(self)
+            zombieSprite.remove(self)
+            self.condition.append('muddle')
 
     def update(self):
         now = pygame.time.get_ticks()
         if 'frost' in self.condition:
-            if self.speed == NormZombie.speed:
+            if self.speed == PresentZombie.speed:
                 self.speed = self.speed / 2
                 self.dps = self.dps / 2
             if now - self.last >= Snowbullet.effect_time:
-                self.speed = NormZombie.speed
-                self.dps = NormZombie.dps
+                self.speed = PresentZombie.speed
+                self.dps = PresentZombie.dps
                 self.condition.remove('frost')
+
+        if 'muddled' in self.condition and self.speed == PresentZombie.speed:
+            self.speed = -PresentZombie.speed
 
         if self.status == 'moving' and self.with_present:
             self.walking_counter += 1
@@ -662,6 +727,7 @@ bulletSprite = pygame.sprite.Group() #a bunch of bullets
 plantSprite = pygame.sprite.Group()
 lawnmowerSprite = pygame.sprite.Group()
 textSprite = pygame.sprite.Group()
+befuddled_zombie = pygame.sprite.Group()
 
 #function
 def display_message(message, color, y_displace = 0):
@@ -692,6 +758,7 @@ def gameloop():
     first_wave_zombie = pygame.sprite.Group()
     second_wave_zombie = pygame.sprite.Group()
     final_wave_Zombie = pygame.sprite.Group()
+    befuddled_zombie = pygame.sprite.Group()
 
     counter = 0
     MousePressed = False  # to choose the card
@@ -746,6 +813,7 @@ def gameloop():
     Sunflower_card()
     Wallnut_card()
     PotatoMine_card()
+    Hypnoshroom_card()
     Shovel()
 
     pygame.display.update()
@@ -995,6 +1063,15 @@ def gameloop():
                     else:
                         Wallnut_card(available= True)
 
+                elif isinstance(Target, Hypnoshroom_card):
+                    if 0 <= square_x <= 9 and 0 <= square_y <= 4 \
+                    and not pygame.sprite.spritecollide(squarelistlist[square_y][square_x], plantSprite, dokill = False):
+                        Hypnoshroom(squarelistlist[square_y][square_x].rect.left, squarelistlist[square_y][square_x].rect.top)
+                        Hypnoshroom_card()
+                        sunbox.update(-Hypnoshroom_card.cost)
+                    else:
+                        Hypnoshroom_card(available= True)
+
                 elif isinstance(Target,PotatoMine_card):
                     if 0 <= square_x <= 9 and 0 <= square_y <= 4 \
                     and not pygame.sprite.spritecollide(squarelistlist[square_y][square_x], plantSprite, dokill=False):
@@ -1026,6 +1103,7 @@ def gameloop():
         sunList.update()
         lawnmowerSprite.update()
         textSprite.update()
+        befuddled_zombie.update()
 
         for i in range(len(bool)):
             bool[i] = False

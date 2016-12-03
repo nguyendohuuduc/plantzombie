@@ -7,6 +7,41 @@ PLANT_FOLDER = os.path.join(DIR_ROOT, 'plant_images')
 BULLET_FOLDER = os.path.join(DIR_ROOT, 'bullet_images')
 
 
+class Hypnoshroom_card(pygame.sprite.Sprite):
+    sheet = pygame.image.load(os.path.join(SEED_FOLDER,'hypnoshroom_card_sheet.png'))
+    x_size = 40
+    y_size = 57
+    cooldown = 6000
+    cost = 75
+    frame_num = int(sheet.get_width()/x_size)
+
+    def __init__(self, available):
+        super(Hypnoshroom_card, self).__init__()
+        self.available = available
+        self.last = pygame.time.get_ticks()
+        self.cur_patch_num = 0
+        self.frames = []
+        for i in range(Hypnoshroom_card.frame_num):
+            self.frames.append(Hypnoshroom_card.sheet.subsurface(i*Hypnoshroom_card.x_size, 0, Hypnoshroom_card.x_size, Hypnoshroom_card.y_size))
+        self.counter = 0
+
+
+class Hypnoshroom(pygame.sprite.Sprite):
+    sheet = pygame.image.load(os.path.join(PLANT_FOLDER, 'hypnoshroom.png'))
+    x_size = 55
+    y_size = 72
+    HP = 25
+    frame_num = int(sheet.get_width()/x_size)
+
+    def __init__(self):
+        super(Hypnoshroom, self).__init__()
+        self.HP = Hypnoshroom.HP
+        self.cur_patch_num = 0
+        self.frames = []
+        for i in range(Hypnoshroom.frame_num):
+            self.frames.append(Hypnoshroom.sheet.subsurface(i*Hypnoshroom.x_size, 0, Hypnoshroom.x_size, Hypnoshroom.y_size))
+        self.counter = 0
+
 class PotatoMine_card(pygame.sprite.Sprite):
     sheet = pygame.image.load(os.path.join(SEED_FOLDER,'potatomine_card_sheet.png'))
     x_size = 40
@@ -87,7 +122,7 @@ class SnowPea_card(pygame.sprite.Sprite):
     x_size = 40
     y_size = 57
     cooldown = 4000
-    cost = 0
+    cost = 175
     frame_num = int(sheet.get_width()/x_size)
 
     def __init__(self, available = False):
