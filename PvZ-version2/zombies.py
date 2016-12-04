@@ -10,7 +10,7 @@ class NormZombie(pygame.sprite.Sprite):
     sheet_eating = pygame.image.load(os.path.join(ZOMBIE_FOLDER, 'eating-zombie.png'))
     sheet_walking_frozen = pygame.image.load(os.path.join(ZOMBIE_FOLDER, 'walking-zombie-frozen.png'))
     sheet_eating_frozen = pygame.image.load(os.path.join(ZOMBIE_FOLDER,'eating-zombie-frozen.png'))
-    speed = -0.5
+    speed = -1
     HP = 50
     dps = 10
     x_size = 49
@@ -50,7 +50,11 @@ class PresentZombie(pygame.sprite.Sprite):
     sheet_eating1 = pygame.image.load(os.path.join(ZOMBIE_FOLDER, 'present-zombie-eating.png'))
     sheet_walking2 = pygame.image.load(os.path.join(ZOMBIE_FOLDER, 'zombie-non-present-walking.png'))
     sheet_eating2 = pygame.image.load(os.path.join(ZOMBIE_FOLDER,'zombie-non-present-eating.png'))
-    speed = -0.5
+    sheet_frozen_walking1 = pygame.image.load(os.path.join(ZOMBIE_FOLDER, 'present-zombie-walking-frozen.png'))
+    sheet_frozen_eating1 = pygame.image.load(os.path.join(ZOMBIE_FOLDER, 'present-zombie-eating-frozen.png'))
+    sheet_frozen_walking2 = pygame.image.load(os.path.join(ZOMBIE_FOLDER, 'zombie-non-present-walking-frozen.png'))
+    sheet_frozen_eating2 = pygame.image.load(os.path.join(ZOMBIE_FOLDER, 'zombie-non-present-eating-frozen.png'))
+    speed = -1
     HP = 70
     dps = 10
     x_size = 66
@@ -59,6 +63,10 @@ class PresentZombie(pygame.sprite.Sprite):
     frame_num2 = int(sheet_eating1.get_width()/x_size)
     frame_num3 = int(sheet_walking2.get_width()/x_size)
     frame_num4 = int(sheet_eating2.get_width()/x_size)
+    frame_num5 = int(sheet_frozen_walking1.get_width()/x_size)
+    frame_num6 = int(sheet_frozen_eating1.get_width()/x_size)
+    frame_num7 = int(sheet_frozen_walking2.get_width()/x_size)
+    frame_num8 = int(sheet_frozen_eating2.get_width()/x_size)
 
     def __init__(self):
         super(PresentZombie, self).__init__()
@@ -79,6 +87,18 @@ class PresentZombie(pygame.sprite.Sprite):
         self.eating_frames2=[]
         for i in range (PresentZombie.frame_num4):
             self.eating_frames2.append(PresentZombie.sheet_eating2.subsurface(i * PresentZombie.x_size, 0, PresentZombie.x_size, PresentZombie.y_size))
+        self.walking_frames3=[]
+        for i in range (PresentZombie.frame_num5):
+            self.walking_frames3.append(PresentZombie.sheet_frozen_walking1.subsurface(i * PresentZombie.x_size, 0, PresentZombie.x_size, PresentZombie.y_size))
+        self.eating_frames3=[]
+        for i in range (PresentZombie.frame_num6):
+            self.eating_frames3.append(PresentZombie.sheet_frozen_eating1.subsurface(i * PresentZombie.x_size, 0, PresentZombie.x_size, PresentZombie.y_size))
+        self.walking_frames4=[]
+        for i in range (PresentZombie.frame_num7):
+            self.walking_frames4.append(PresentZombie.sheet_frozen_walking2.subsurface(i * PresentZombie.x_size, 0, PresentZombie.x_size, PresentZombie.y_size))
+        self.eating_frames4=[]
+        for i in range (PresentZombie.frame_num8):
+            self.eating_frames4.append(PresentZombie.sheet_frozen_eating2.subsurface(i * PresentZombie.x_size, 0, PresentZombie.x_size, PresentZombie.y_size))
         self.walking_counter = 0
         self.eating_counter = 0
         self.condition = []

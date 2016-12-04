@@ -11,8 +11,10 @@ class Hypnoshroom_card(pygame.sprite.Sprite):
     sheet = pygame.image.load(os.path.join(SEED_FOLDER,'hypnoshroom_card_sheet.png'))
     x_size = 40
     y_size = 57
-    cooldown = 6000
-    cost = 75
+    cooldown = 0
+    cost = 0
+    #cooldown = 6000
+    #cost = 75
     frame_num = int(sheet.get_width()/x_size)
 
     def __init__(self, available):
@@ -122,7 +124,8 @@ class SnowPea_card(pygame.sprite.Sprite):
     x_size = 40
     y_size = 57
     cooldown = 4000
-    cost = 175
+    #cost = 175
+    cost = 0
     frame_num = int(sheet.get_width()/x_size)
 
     def __init__(self, available = False):
