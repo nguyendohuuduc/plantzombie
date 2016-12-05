@@ -883,7 +883,7 @@ def gameloop():
 
     pygame.display.update()
 
-    planning_stage = stage1 = stage2 = stage3 = message_appear0 = message_appear1 = False #stage is between waves
+    planning_stage = stage1 = stage2 = stage3 = False #stage is between waves
     wave1 = wave2 = wave3 = False
     wave01 = wave02 = wave03 = False
 
@@ -1036,9 +1036,8 @@ def gameloop():
         if counter == 210 * FPS:
             stage3 = False
             Message('A huge wave of zombie is approaching!', red, 40, 3000)
-            wave03 = True
         elif counter == 213 * FPS:
-            Message('Final Wave', red, 40, 2000)
+            Message('Final Wave', red, 60, 2000)
         elif counter == 215 * FPS:
             wave3 = True
 
@@ -1054,6 +1053,7 @@ def gameloop():
                 final_wave_Zombie.add(zom)
                 x+=5
             wave3 = False
+            wave03 = True
 
         if wave03 and len(final_wave_Zombie) == 0:
             gameWin = True
@@ -1219,6 +1219,7 @@ def gameloop():
                         break
                 if eating == False:
                     traitorZombie.status = 'moving'
+
             else:
                 traitorZombie.status = 'moving'
 
