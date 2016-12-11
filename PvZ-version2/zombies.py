@@ -5,7 +5,23 @@ import os
 DIR_ROOT = os.path.dirname(os.path.abspath(__file__))
 ZOMBIE_FOLDER = os.path.join(DIR_ROOT, 'zombie_images')
 
-class NormZombie(pygame.sprite.Sprite):
+#Abstract Base Class
+class Zombie(pygame.sprite.Sprite):
+
+    def __init__(self, speed, HP, dps):
+        super(Zombie, self).__init__()
+        self.walking_counter = 0
+        self.eating_counter = 0
+        self.condition = []
+        self.speed = speed
+        self.HP = HP
+        self.status = 'moving'
+        self.dps = dps
+        self.at_frame_walking = 0
+        self.at_frame_eating = 0
+
+
+class NormZombie(Zombie):
     sheet_walking = pygame.image.load(os.path.join(ZOMBIE_FOLDER, 'walking-zombie.png'))
     sheet_eating = pygame.image.load(os.path.join(ZOMBIE_FOLDER, 'eating-zombie.png'))
     sheet_walking_frozen = pygame.image.load(os.path.join(ZOMBIE_FOLDER, 'walking-zombie-frozen.png'))
@@ -21,12 +37,7 @@ class NormZombie(pygame.sprite.Sprite):
     frame_num4 = int(sheet_eating_frozen.get_width()/x_size)
 
     def __init__(self):
-        super(NormZombie, self).__init__()
-        self.HP = NormZombie.HP
-        self.status = 'moving'
-        self.dps = NormZombie.dps
-        self.at_frame_walking = 0
-        self.at_frame_eating = 0
+        super(NormZombie, self).__init__(NormZombie.speed, NormZombie.HP, NormZombie.dps)
         self.walking_frames = []
         for i in range(NormZombie.frame_num):
             self.walking_frames.append(NormZombie.sheet_walking.subsurface(i * NormZombie.x_size, 0, NormZombie.x_size, NormZombie.y_size))
@@ -39,13 +50,9 @@ class NormZombie(pygame.sprite.Sprite):
         self.eating_frozen_frames=[]
         for i in range (NormZombie.frame_num4):
             self.eating_frozen_frames.append(NormZombie.sheet_eating_frozen.subsurface(i * NormZombie.x_size, 0, NormZombie.x_size, NormZombie.y_size))
-        self.walking_counter = 0
-        self.eating_counter = 0
-        self.condition = []
-        self.speed = NormZombie.speed
 
 
-class PresentZombie(pygame.sprite.Sprite):
+class PresentZombie(Zombie):
     sheet_walking1 = pygame.image.load(os.path.join(ZOMBIE_FOLDER, 'present-zombie-walking.png'))
     sheet_eating1 = pygame.image.load(os.path.join(ZOMBIE_FOLDER, 'present-zombie-eating.png'))
     sheet_walking2 = pygame.image.load(os.path.join(ZOMBIE_FOLDER, 'zombie-non-present-walking.png'))
@@ -69,12 +76,7 @@ class PresentZombie(pygame.sprite.Sprite):
     frame_num8 = int(sheet_frozen_eating2.get_width()/x_size)
 
     def __init__(self):
-        super(PresentZombie, self).__init__()
-        self.HP = PresentZombie.HP
-        self.status = 'moving'
-        self.dps = PresentZombie.dps
-        self.at_frame_walking = 0
-        self.at_frame_eating = 0
+        super(PresentZombie, self).__init__(PresentZombie.speed, PresentZombie.HP, PresentZombie.dps)
         self.walking_frames1 = []
         for i in range(PresentZombie.frame_num1):
             self.walking_frames1.append(PresentZombie.sheet_walking1.subsurface(i * PresentZombie.x_size, 0, PresentZombie.x_size, PresentZombie.y_size))
@@ -99,10 +101,7 @@ class PresentZombie(pygame.sprite.Sprite):
         self.eating_frames4=[]
         for i in range (PresentZombie.frame_num8):
             self.eating_frames4.append(PresentZombie.sheet_frozen_eating2.subsurface(i * PresentZombie.x_size, 0, PresentZombie.x_size, PresentZombie.y_size))
-        self.walking_counter = 0
-        self.eating_counter = 0
-        self.condition = []
-        self.speed = PresentZombie.speed
+
 
 if __name__ == "__main__":
     print("You ran this module directly (and did not 'import' it).")

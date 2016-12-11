@@ -1,5 +1,5 @@
 #Always use updates. The only ones don't use update are the cards
-import pygame, plants, others, zombies, random, os,time
+import pygame, plants, others, zombies, random, os,time, cards, bullets
 DIR_ROOT = os.path.dirname(os.path.abspath(__file__))
 OTHER_FOLDER = os.path.join(DIR_ROOT, 'miscellany')
 SOUND_FOLDER = os.path.join(DIR_ROOT, 'sound')
@@ -10,7 +10,7 @@ pygame.mixer.music.load(os.path.join(SOUND_FOLDER, 'Jingle Bells original song.m
 pygame.mixer.music.play(-1)
 myfont = pygame.font.SysFont('monospace', 25)
 FPS = 40
-display_width = 710
+display_width = 707 #used to be 710
 display_height = 500
 clock = pygame.time.Clock()
 gameDisplay = pygame.display.set_mode((display_width, display_height))
@@ -73,7 +73,7 @@ class SunBox(others.SunBox):
 
 class Shovel(others.Shovel):
 
-    def __init__(self, x =387, y=20):
+    def __init__(self, x =395, y=20):
         super(Shovel, self).__init__(x=x, y=y)
         self.add_to_screen()
         allSprite.add(self)
@@ -87,24 +87,15 @@ class Shovel(others.Shovel):
         self.rect.y = new_y
 
 
-class Hypnoshroom_card(plants.Hypnoshroom_card):
+class Hypnoshroom_card(cards.Hypnoshroom_card):
 
-    def __init__(self, x = 330, y=20, available=False):
-        super(Hypnoshroom_card, self).__init__(available=available)
-        self.image = self.frames[0]
-        self.rect = self.image.get_rect()
-        self.rect.x = x
-        self.rect.y = y
-        self.add_to_screen()
+    def __init__(self, x = 343, y=20, available=False):
+        super(Hypnoshroom_card, self).__init__(available=available, x=x, y=y)
         allSprite.add(self)
         cardSprite.add(self)
 
     def add_to_screen(self):
         gameDisplay.blit(self.image, [self.rect.x, self.rect.y, Hypnoshroom_card.x_size, Hypnoshroom_card.y_size])
-
-    def move(self, new_x, new_y):
-        self.rect.x = new_x
-        self.rect.y = new_y
 
     def update(self):
         now = pygame.time.get_ticks()
@@ -123,11 +114,7 @@ class Hypnoshroom_card(plants.Hypnoshroom_card):
 class Hypnoshroom(plants.Hypnoshroom):
 
     def __init__(self, x, y):
-        super(Hypnoshroom, self).__init__()
-        self.image = self.frames[0]
-        self.rect = self.image.get_rect()
-        self.rect.x = x
-        self.rect.y = y
+        super(Hypnoshroom, self).__init__(x, y)
         allSprite.add(self)
         plantSprite.add(self)
 
@@ -142,24 +129,15 @@ class Hypnoshroom(plants.Hypnoshroom):
             self.kill()
 
 
-class PotatoMine_card(plants.PotatoMine_card):
+class PotatoMine_card(cards.PotatoMine_card):
 
-    def __init__(self, x = 230, y=20, available = False):
-        super(PotatoMine_card, self).__init__(available=available)
-        self.image = self.frames[0]
-        self.rect = self.image.get_rect()
-        self.rect.x = x
-        self.rect.y = y
-        self.add_to_screen()
+    def __init__(self, x = 243, y=20, available = False):
+        super(PotatoMine_card, self).__init__(available=available, x=x, y=y)
         allSprite.add(self)
         cardSprite.add(self)
 
     def add_to_screen(self):
         gameDisplay.blit(self.image, [self.rect.x, self.rect.y, PotatoMine_card.x_size, PotatoMine_card.y_size])
-
-    def move(self, new_x, new_y):
-        self.rect.x = new_x
-        self.rect.y = new_y
 
     def update(self):
         now = pygame.time.get_ticks()
@@ -178,14 +156,7 @@ class PotatoMine_card(plants.PotatoMine_card):
 class PotatoMine(plants.PotatoMine):
 
     def __init__(self, x, y):
-        super(PotatoMine, self).__init__()
-        self.image = self.frames[0]
-        self.rect = self.image.get_rect()
-        self.rect.x = x
-        self.rect.y = y
-        self.explodable = False
-        self.dead_already = False
-        self.add_to_screen()
+        super(PotatoMine, self).__init__(x, y)
         allSprite.add(self)
         plantSprite.add(self)
 
@@ -210,24 +181,15 @@ class PotatoMine(plants.PotatoMine):
                 self.kill()
 
 
-class Wallnut_card(plants.Wallnut_card):
+class Wallnut_card(cards.Wallnut_card):
 
-    def __init__(self, x = 180, y=20, available = False):
-        super(Wallnut_card, self).__init__(available=available)
-        self.image = self.frames[0]
-        self.rect = self.image.get_rect()
-        self.rect.x = x
-        self.rect.y = y
-        self.add_to_screen()
+    def __init__(self, x = 193, y=20, available = False):
+        super(Wallnut_card, self).__init__(available=available, x=x, y=y)
         allSprite.add(self)
         cardSprite.add(self)
 
     def add_to_screen(self):
         gameDisplay.blit(self.image, [self.rect.x, self.rect.y, Wallnut_card.x_size, Wallnut_card.y_size])
-
-    def move(self, new_x, new_y):
-        self.rect.x = new_x
-        self.rect.y = new_y
 
     def update(self):
         now = pygame.time.get_ticks()
@@ -246,12 +208,7 @@ class Wallnut_card(plants.Wallnut_card):
 class Wallnut(plants.Wallnut):
 
     def __init__(self, x, y):
-        super(Wallnut, self).__init__()
-        self.image = self.frames[0]
-        self.rect = self.image.get_rect()
-        self.rect.x = x
-        self.rect.y = y
-        self.add_to_screen()
+        super(Wallnut, self).__init__(x, y)
         allSprite.add(self)
         plantSprite.add(self)
 
@@ -269,24 +226,15 @@ class Wallnut(plants.Wallnut):
             self.kill()
 
 
-class Sunflower_card(plants.Sunflower_card):
+class Sunflower_card(cards.Sunflower_card):
 
-    def __init__(self, x=130, y=20, available = False):
-        super(Sunflower_card, self).__init__(available=available)
-        self.image = self.frames[0]
-        self.rect = self.image.get_rect()
-        self.rect.x = x
-        self.rect.y = y
-        self.add_to_screen()
+    def __init__(self, x=143, y=20, available = False):
+        super(Sunflower_card, self).__init__(available=available, x=x, y=y)
         allSprite.add(self)
         cardSprite.add(self)
 
     def add_to_screen(self):
         gameDisplay.blit(self.image, [self.rect.x, self.rect.y, Peashooter_card.x_size, Peashooter_card.y_size])
-
-    def move(self, new_x, new_y):
-        self.rect.x = new_x
-        self.rect.y = new_y
 
     def update(self):
         now = pygame.time.get_ticks()
@@ -305,12 +253,7 @@ class Sunflower_card(plants.Sunflower_card):
 class Sunflower(plants.Sunflower):
 
     def __init__(self, x, y):
-        super(Sunflower, self).__init__()
-        self.image = self.frames[0]
-        self.rect = self.image.get_rect()
-        self.rect.x = x
-        self.rect.y = y
-        self.add_to_screen()
+        super(Sunflower, self).__init__(x, y)
         allSprite.add(self)
         plantSprite.add(self)
 
@@ -335,24 +278,15 @@ class Sunflower(plants.Sunflower):
             self.kill()
 
 
-class SnowPea_card(plants.SnowPea_card):
-    def __init__(self, x=280, y=20, available = False):
-        super(SnowPea_card, self).__init__(available=available)
-        self.image = self.frames[0]
-        self.rect = self.image.get_rect()
-        self.rect.x = x
-        self.rect.y = y
-        self.add_to_screen()
+class SnowPea_card(cards.SnowPea_card):
+
+    def __init__(self, x=293, y=20, available = False):
+        super(SnowPea_card, self).__init__(available=available, x=x, y=y)
         allSprite.add(self)
         cardSprite.add(self)
 
-
     def add_to_screen(self):
         gameDisplay.blit(self.image, [self.rect.x, self.rect.y, SnowPea_card.x_size, SnowPea_card.y_size])
-
-    def move(self, new_x, new_y):
-        self.rect.x = new_x
-        self.rect.y = new_y
 
     def update(self):
         now = pygame.time.get_ticks()
@@ -371,12 +305,7 @@ class SnowPea_card(plants.SnowPea_card):
 class SnowPea(plants.SnowPea):
 
     def __init__(self, x, y):
-        super(SnowPea, self).__init__()
-        self.image = self.frames[0]
-        self.rect = self.image.get_rect()
-        self.rect.x = x
-        self.rect.y = y
-        self.add_to_screen()
+        super(SnowPea, self).__init__(x, y)
         allSprite.add(self)
         plantSprite.add(self)
 
@@ -408,7 +337,7 @@ class SnowPea(plants.SnowPea):
             self.kill()
 
 
-class Snowbullet(plants.Snowbullet):
+class Snowbullet(bullets.Snowbullet):
 
     def __init__(self, x, y):
         super(Snowbullet, self).__init__(x, y)
@@ -428,23 +357,14 @@ class Snowbullet(plants.Snowbullet):
             self.kill()
 
 
-class Peashooter_card(plants.Peashooter_card):
-    def __init__(self, x=80, y=20, available = False):
-        super(Peashooter_card, self).__init__(available=available)
-        self.image = self.frames[0]
-        self.rect = self.image.get_rect()
-        self.rect.x = x
-        self.rect.y = y
-        self.add_to_screen()
+class Peashooter_card(cards.Peashooter_card):
+    def __init__(self, x=93, y=20, available = False):
+        super(Peashooter_card, self).__init__(available=available, x=x, y=y)
         allSprite.add(self)
         cardSprite.add(self)
 
     def add_to_screen(self):
         gameDisplay.blit(self.image, [self.rect.x, self.rect.y, Peashooter_card.x_size, Peashooter_card.y_size])
-
-    def move(self, new_x, new_y):
-        self.rect.x = new_x
-        self.rect.y = new_y
 
     def update(self):
         now = pygame.time.get_ticks()
@@ -463,12 +383,7 @@ class Peashooter_card(plants.Peashooter_card):
 class Peashooter(plants.Peashooter):
 
     def __init__(self, x, y):
-        super(Peashooter, self).__init__()
-        self.image = self.frames[0]
-        self.rect = self.image.get_rect()
-        self.rect.x = x
-        self.rect.y = y
-        self.add_to_screen()
+        super(Peashooter, self).__init__(x, y)
         allSprite.add(self)
         plantSprite.add(self)
 
@@ -500,7 +415,7 @@ class Peashooter(plants.Peashooter):
             self.kill()
 
 
-class Peabullet(plants.Peabullet):
+class Peabullet(bullets.Peabullet):
 
     def __init__(self, x, y):
         super(Peabullet, self).__init__(x, y)
@@ -586,7 +501,6 @@ class NormZombie(zombies.NormZombie):
             self.remove(zombieSprite)
             self.condition.append('muddled')
 
-
     def update(self):
         now = pygame.time.get_ticks()
         if 'frost' in self.condition:
@@ -607,37 +521,49 @@ class NormZombie(zombies.NormZombie):
             self.eating_counter = 0
             self.rect.x += self.speed
             if 'frost' in self.condition:
+                if self.walking_counter % 40 == 0:
+                    self.at_frame_walking += 1
+                if self.at_frame_walking > (NormZombie.frame_num-1):
+                    self.at_frame_walking = 0
                 if 'muddled' in self.condition:
                     self.image = pygame.transform.flip(self.walking_frozen_frames[self.at_frame_walking],True,False)
                 else:
                     self.image = self.walking_frozen_frames[self.at_frame_walking]
+
             else:
+                if self.walking_counter % 15 == 0:
+                    self.at_frame_walking += 1
+                if self.at_frame_walking > (NormZombie.frame_num-1):
+                    self.at_frame_walking = 0
                 if 'muddled' in self.condition:
                     self.image = pygame.transform.flip(self.walking_frames[self.at_frame_walking], True, False)
                 else:
                     self.image = self.walking_frames[self.at_frame_walking]
-            if self.walking_counter % 10 == 0:
-                self.at_frame_walking += 1
-            if self.at_frame_walking > (NormZombie.frame_num-1):
-                self.at_frame_walking = 0
+
 
         elif self.status == 'eating':
             self.eating_counter += 1
             self.walking_counter = 0
             if 'frost' in self.condition:
+                if self.eating_counter % 20 == 0:
+                    self.at_frame_eating += 1
+                if self.at_frame_eating > (NormZombie.frame_num2-1):
+                    self.at_frame_eating = 0
                 if 'muddled' in self.condition:
                     self.image = pygame.transform.flip(self.eating_frozen_frames[self.at_frame_eating],True,False)
                 else:
                     self.image = self.eating_frozen_frames[self.at_frame_eating]
+
             else:
+                if self.eating_counter % 5 == 0:
+                    self.at_frame_eating += 1
+                if self.at_frame_eating > (NormZombie.frame_num2-1):
+                    self.at_frame_eating = 0
                 if 'muddled' in self.condition:
                     self.image = pygame.transform.flip(self.eating_frames[self.at_frame_eating],True,False)
                 else:
                     self.image = self.eating_frames[self.at_frame_eating]
-            if self.eating_counter % 5 == 0:
-                self.at_frame_eating += 1
-            if self.at_frame_eating > (NormZombie.frame_num2-1):
-                self.at_frame_eating = 0
+
 
         if 0 > self.rect.x or self.rect.x > display_width: #if bullet out of screen, kill it. Better performance
             self.kill()
@@ -647,6 +573,7 @@ class NormZombie(zombies.NormZombie):
 
         if self.HP <= 0:
             self.kill()
+
 
 class PresentZombie(zombies.PresentZombie):
 
@@ -665,7 +592,7 @@ class PresentZombie(zombies.PresentZombie):
     def bullet_collide(self, bullet):
         self.HP -= bullet.damage
         if isinstance(bullet, Snowbullet):  # I dont want to stack slowness
-            self.condition.append('frost')
+            self.condition.append('frost') #if this is the case- then there would be many frosts
             self.last = pygame.time.get_ticks()
 
     def plant_collide(self, plant):
@@ -674,8 +601,6 @@ class PresentZombie(zombies.PresentZombie):
             befuddled_zombie.add(self)
             zombieSprite.remove(self)
             self.condition.append('muddled')
-
-
 
     def update(self):
         now = pygame.time.get_ticks()
@@ -696,16 +621,21 @@ class PresentZombie(zombies.PresentZombie):
             self.walking_counter += 1
             self.eating_counter = 0
             self.rect.x += self.speed
-            if self.walking_counter % 10 == 0:
-                self.at_frame_walking += 1
-            if self.at_frame_walking > (PresentZombie.frame_num1 - 1):
-                self.at_frame_walking = 0
+
             if 'frost' in self.condition:
+                if self.walking_counter % 40 == 0:
+                    self.at_frame_walking += 1
+                if self.at_frame_walking > (PresentZombie.frame_num1 - 1):
+                    self.at_frame_walking = 0
                 if 'muddled' in self.condition:
                     self.image=pygame.transform.flip(self.walking_frames3[self.at_frame_walking],True,False)
                 else:
                     self.image=self.walking_frames3[self.at_frame_walking]
             else:
+                if self.walking_counter % 15 == 0:
+                    self.at_frame_walking += 1
+                if self.at_frame_walking > (PresentZombie.frame_num1 - 1):
+                    self.at_frame_walking = 0
                 if 'muddled' in self.condition:
                     self.image=pygame.transform.flip(self.walking_frames1[self.at_frame_walking],True,False)
                 else:
@@ -714,16 +644,20 @@ class PresentZombie(zombies.PresentZombie):
         elif self.status == 'eating' and self.with_present:
             self.eating_counter += 1
             self.walking_counter = 0
-            if self.eating_counter % 5 == 0:
-                self.at_frame_eating += 1
-            if self.at_frame_eating > (PresentZombie.frame_num2 - 1):
-                self.at_frame_eating = 0
             if 'frost' in self.condition:
+                if self.eating_counter % 20 == 0:
+                    self.at_frame_eating += 1
+                if self.at_frame_eating > (PresentZombie.frame_num2 - 1):
+                    self.at_frame_eating = 0
                 if 'muddled' in self.condition:
                     self.image=pygame.transform.flip(self.eating_frames3[self.at_frame_eating],True,False)
                 else:
                     self.image=self.eating_frames3[self.at_frame_eating]
             else:
+                if self.eating_counter % 5 == 0:
+                    self.at_frame_eating += 1
+                if self.at_frame_eating > (PresentZombie.frame_num2 - 1):
+                    self.at_frame_eating = 0
                 if 'muddled' in self.condition:
                     self.image = pygame.transform.flip(self.eating_frames1[self.at_frame_eating], True, False)
                 else:
@@ -731,16 +665,20 @@ class PresentZombie(zombies.PresentZombie):
 
         elif self.status == 'moving' and not self.with_present:
             self.rect.x += self.speed*3
-            if self.walking_counter % 10 == 0:
-                self.at_frame_walking += 1
-            if self.at_frame_walking > (PresentZombie.frame_num3 - 1):
-                self.at_frame_walking = 1
             if 'frost' in self.condition:
+                if self.walking_counter % 10 == 0:
+                    self.at_frame_walking += 1
+                if self.at_frame_walking > (PresentZombie.frame_num3 - 1):
+                    self.at_frame_walking = 1
                 if 'muddled' in self.condition:
                     self.image=pygame.transform.flip(self.walking_frames4[self.at_frame_walking],True,False)
                 else:
                     self.image=self.walking_frames4[self.at_frame_walking]
             else:
+                if self.walking_counter % 5 == 0:
+                    self.at_frame_walking += 1
+                if self.at_frame_walking > (PresentZombie.frame_num3 - 1):
+                    self.at_frame_walking = 1
                 if 'muddled' in self.condition:
                     self.image=pygame.transform.flip(self.walking_frames2[self.at_frame_walking],True,False)
                 else:
@@ -751,16 +689,20 @@ class PresentZombie(zombies.PresentZombie):
         elif self.status == 'eating' and not self.with_present:
             self.eating_counter += 1
             self.walking_counter = 0
-            if self.eating_counter % 5 == 0:
-                self.at_frame_eating += 1
-            if self.at_frame_eating > (PresentZombie.frame_num4 - 1):
-                self.at_frame_eating = 0
             if 'frost' in self.condition:
+                if self.eating_counter % 10 == 0:
+                    self.at_frame_eating += 1
+                if self.at_frame_eating > (PresentZombie.frame_num4 - 1):
+                    self.at_frame_eating = 0
                 if 'muddled' in self.condition:
                     self.image=pygame.transform.flip(self.eating_frames4[self.at_frame_eating],True,False)
                 else:
                     self.image=self.eating_frames4[self.at_frame_eating]
             else:
+                if self.eating_counter % 5 == 0:
+                    self.at_frame_eating += 1
+                if self.at_frame_eating > (PresentZombie.frame_num4 - 1):
+                    self.at_frame_eating = 0
                 if 'muddled' in self.condition:
                     self.image=pygame.transform.flip(self.eating_frames2[self.at_frame_eating],True,False)
                 else:
@@ -858,10 +800,12 @@ def gameloop():
         x = 60
         squarelistlist.append(squares)
 
-    deck_image = pygame.image.load(os.path.join(OTHER_FOLDER, 'green-pattern.jpeg'))
-    gameDisplay.blit(deck_image, [0, 0, 400, 100])
-    shovel_box_image = pygame.image.load(os.path.join(OTHER_FOLDER,'sky.jpg'))
-    gameDisplay.blit(shovel_box_image,[450, 0])
+    fence = pygame.image.load(os.path.join(OTHER_FOLDER, 'fence.png'))
+    gameDisplay.blit(fence, [0,0])
+    deck_image = pygame.image.load(os.path.join(OTHER_FOLDER, 'deck2.png'))
+    gameDisplay.blit(deck_image, [10, 10, 400, 100])
+
+
     #add some tiles
     tile_image = pygame.image.load(os.path.join(OTHER_FOLDER, 'red-tile-001.jpg'))
     for i in range(5):

@@ -42,8 +42,8 @@ class SunBox(pygame.sprite.Sprite):
         super(SunBox, self).__init__()
         self.image = SunBox.image
         self.rect = self.image.get_rect()
-        self.rect.x = 15
-        self.rect.y = 17
+        self.rect.x = 20
+        self.rect.y = 19
         self.sun_capacity = 50
 
 
