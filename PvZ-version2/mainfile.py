@@ -6,8 +6,13 @@ SOUND_FOLDER = os.path.join(DIR_ROOT, 'sound')
 
 pygame.init()
 pygame.mixer.init()
-pygame.mixer.music.load(os.path.join(SOUND_FOLDER, 'Jingle Bells original song.mp3'))
-#pygame.mixer.music.play(-1)
+pygame.mixer.music.load(os.path.join(SOUND_FOLDER, 'WateryGrave.ogg'))
+pygame.mixer.music.play(-1)
+
+eating_sound = pygame.mixer.Sound(file=os.path.join(SOUND_FOLDER, 'eating_sound.ogg'))
+hitting_sound = pygame.mixer.Sound(file=os.path.join(SOUND_FOLDER, 'hitting-sound.ogg'))
+explosion_sound = pygame.mixer.Sound(file=os.path.join(SOUND_FOLDER, 'explosion.ogg'))
+
 myfont = pygame.font.SysFont('monospace', 25)
 FPS = 40
 display_width = 707 #used to be 710
@@ -164,6 +169,7 @@ class PotatoMine(plants.PotatoMine):
         gameDisplay.blit(self.image, [self.rect.x, self.rect.y, PotatoMine.x_size, PotatoMine.y_size])
 
     def exploded(self):
+        explosion_sound.play(maxtime=1500)
         self.cur_patch_num = 2
         self.dead_already = True
 
@@ -490,12 +496,14 @@ class NormZombie(zombies.NormZombie):
 
     def bullet_collide(self, bullet):
         self.HP -= bullet.damage
+        hitting_sound.play(maxtime=500)
         if isinstance(bullet, Snowbullet):  # I dont want to stack slowness
             self.condition.append('frost')
             self.last = pygame.time.get_ticks()
 
     def plant_collide(self, plant):
         plant.HP -= self.dps/FPS
+        eating_sound.play(maxtime=1000)
         if plant.HP <= 0 and isinstance(plant, Hypnoshroom):
             self.add(befuddled_zombie)
             self.remove(zombieSprite)
@@ -591,12 +599,14 @@ class PresentZombie(zombies.PresentZombie):
 
     def bullet_collide(self, bullet):
         self.HP -= bullet.damage
+        hitting_sound.play(maxtime=500)
         if isinstance(bullet, Snowbullet):  # I dont want to stack slowness
             self.condition.append('frost') #if this is the case- then there would be many frosts
             self.last = pygame.time.get_ticks()
 
     def plant_collide(self, plant):
         plant.HP -= self.dps / FPS
+        eating_sound.play(maxtime=1000)
         if plant.HP <= 0 and isinstance(plant, Hypnoshroom):
             befuddled_zombie.add(self)
             zombieSprite.remove(self)
