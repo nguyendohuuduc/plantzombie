@@ -7,6 +7,7 @@ ZOMBIE_FOLDER = os.path.join(DIR_ROOT, 'zombie_images')
 
 #Abstract Base Class
 class Zombie(pygame.sprite.Sprite):
+    layer = 3
 
     def __init__(self, speed, HP, dps):
         super(Zombie, self).__init__()

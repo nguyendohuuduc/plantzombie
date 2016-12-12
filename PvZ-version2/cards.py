@@ -7,6 +7,7 @@ SEED_FOLDER = os.path.join(DIR_ROOT, 'card_images')
 
 ###Abstract Base Class. Don't touch.
 class Card(pygame.sprite.Sprite):
+    layer = 2
 
     def __init__(self, available, cooldown, frame_num, sheet, x_size, y_size, x, y):
         super(Card, self).__init__()

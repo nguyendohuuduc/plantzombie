@@ -23,6 +23,7 @@ class Sun(pygame.sprite.Sprite):
     image = pygame.image.load(os.path.join(OTHER_FOLDER, 'snowflake2.png'))
     size = 100
     y_speed = 1
+    layer = 9
 
     def __init__(self, x, y, speed):
         super(Sun, self).__init__()
@@ -51,6 +52,7 @@ class Shovel(pygame.sprite.Sprite):
     image = pygame.image.load(os.path.join(OTHER_FOLDER, 'snow-shovel.png'))
     width = 56
     height = 60
+    layer = 2
 
     def __init__(self, x,y):
         super(Shovel, self).__init__()
@@ -70,6 +72,7 @@ class LawnMower(pygame.sprite.Sprite):
     width = 60
     height = 60
     speed = 5
+    layer = 9
 
     def __init__(self,x , y):
         super(LawnMower, self).__init__()

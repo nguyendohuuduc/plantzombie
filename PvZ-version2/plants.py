@@ -6,6 +6,7 @@ PLANT_FOLDER = os.path.join(DIR_ROOT, 'plant_images')
 
 #Abstract Base Class
 class Plant(pygame.sprite.Sprite):
+    layer = 1
 
     def __init__(self, HP, frame_num, sheet, x_size, y_size, x, y):
         super(Plant, self).__init__()

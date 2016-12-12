@@ -7,7 +7,7 @@ SOUND_FOLDER = os.path.join(DIR_ROOT, 'sound')
 pygame.init()
 pygame.mixer.init()
 pygame.mixer.music.load(os.path.join(SOUND_FOLDER, 'Jingle Bells original song.mp3'))
-pygame.mixer.music.play(-1)
+#pygame.mixer.music.play(-1)
 myfont = pygame.font.SysFont('monospace', 25)
 FPS = 40
 display_width = 707 #used to be 710
@@ -44,7 +44,7 @@ class Message(pygame.sprite.Sprite):
         self.last = pygame.time.get_ticks()
         self.time_last = time
         gameDisplay.blit(self.image, [self.rect.left, self.rect.top])
-        allSprite.add(self)
+        allSprite.add(self, layer=10)
         textSprite.add(self)
 
     def update(self):
@@ -76,7 +76,7 @@ class Shovel(others.Shovel):
     def __init__(self, x =395, y=20):
         super(Shovel, self).__init__(x=x, y=y)
         self.add_to_screen()
-        allSprite.add(self)
+        allSprite.add(self, layer=others.Shovel.layer)
         cardSprite.add(self)
 
     def add_to_screen(self):
@@ -91,7 +91,7 @@ class Hypnoshroom_card(cards.Hypnoshroom_card):
 
     def __init__(self, x = 343, y=20, available=False):
         super(Hypnoshroom_card, self).__init__(available=available, x=x, y=y)
-        allSprite.add(self)
+        allSprite.add(self, layer=cards.Hypnoshroom_card.layer)
         cardSprite.add(self)
 
     def add_to_screen(self):
@@ -115,7 +115,7 @@ class Hypnoshroom(plants.Hypnoshroom):
 
     def __init__(self, x, y):
         super(Hypnoshroom, self).__init__(x, y)
-        allSprite.add(self)
+        allSprite.add(self, layer= plants.Hypnoshroom.layer)
         plantSprite.add(self)
 
     def update(self):
@@ -133,7 +133,7 @@ class PotatoMine_card(cards.PotatoMine_card):
 
     def __init__(self, x = 243, y=20, available = False):
         super(PotatoMine_card, self).__init__(available=available, x=x, y=y)
-        allSprite.add(self)
+        allSprite.add(self, layer=cards.PotatoMine_card.layer)
         cardSprite.add(self)
 
     def add_to_screen(self):
@@ -157,7 +157,7 @@ class PotatoMine(plants.PotatoMine):
 
     def __init__(self, x, y):
         super(PotatoMine, self).__init__(x, y)
-        allSprite.add(self)
+        allSprite.add(self, layer=plants.PotatoMine.layer)
         plantSprite.add(self)
 
     def add_to_screen(self):
@@ -185,7 +185,7 @@ class Wallnut_card(cards.Wallnut_card):
 
     def __init__(self, x = 193, y=20, available = False):
         super(Wallnut_card, self).__init__(available=available, x=x, y=y)
-        allSprite.add(self)
+        allSprite.add(self, layer=cards.Wallnut_card.layer)
         cardSprite.add(self)
 
     def add_to_screen(self):
@@ -209,7 +209,7 @@ class Wallnut(plants.Wallnut):
 
     def __init__(self, x, y):
         super(Wallnut, self).__init__(x, y)
-        allSprite.add(self)
+        allSprite.add(self, layer=plants.Wallnut.layer)
         plantSprite.add(self)
 
     def add_to_screen(self):
@@ -230,7 +230,7 @@ class Sunflower_card(cards.Sunflower_card):
 
     def __init__(self, x=143, y=20, available = False):
         super(Sunflower_card, self).__init__(available=available, x=x, y=y)
-        allSprite.add(self)
+        allSprite.add(self, layer=cards.Sunflower_card.layer)
         cardSprite.add(self)
 
     def add_to_screen(self):
@@ -254,7 +254,7 @@ class Sunflower(plants.Sunflower):
 
     def __init__(self, x, y):
         super(Sunflower, self).__init__(x, y)
-        allSprite.add(self)
+        allSprite.add(self, layer=plants.Sunflower.layer)
         plantSprite.add(self)
 
     def add_to_screen(self):
@@ -282,7 +282,7 @@ class SnowPea_card(cards.SnowPea_card):
 
     def __init__(self, x=293, y=20, available = False):
         super(SnowPea_card, self).__init__(available=available, x=x, y=y)
-        allSprite.add(self)
+        allSprite.add(self, layer=cards.SnowPea_card.layer)
         cardSprite.add(self)
 
     def add_to_screen(self):
@@ -306,7 +306,7 @@ class SnowPea(plants.SnowPea):
 
     def __init__(self, x, y):
         super(SnowPea, self).__init__(x, y)
-        allSprite.add(self)
+        allSprite.add(self, layer=plants.SnowPea.layer)
         plantSprite.add(self)
 
     def add_to_screen(self):
@@ -342,7 +342,7 @@ class Snowbullet(bullets.Snowbullet):
     def __init__(self, x, y):
         super(Snowbullet, self).__init__(x, y)
         self.add_to_screen()
-        allSprite.add(self)
+        allSprite.add(self, bullets.Snowbullet.layer)
         bulletSprite.add(self)
 
     def add_to_screen(self):
@@ -360,7 +360,7 @@ class Snowbullet(bullets.Snowbullet):
 class Peashooter_card(cards.Peashooter_card):
     def __init__(self, x=93, y=20, available = False):
         super(Peashooter_card, self).__init__(available=available, x=x, y=y)
-        allSprite.add(self)
+        allSprite.add(self, layer=cards.Peashooter_card.layer)
         cardSprite.add(self)
 
     def add_to_screen(self):
@@ -384,7 +384,7 @@ class Peashooter(plants.Peashooter):
 
     def __init__(self, x, y):
         super(Peashooter, self).__init__(x, y)
-        allSprite.add(self)
+        allSprite.add(self, layer=plants.Peashooter.layer)
         plantSprite.add(self)
 
     def add_to_screen(self):
@@ -420,7 +420,7 @@ class Peabullet(bullets.Peabullet):
     def __init__(self, x, y):
         super(Peabullet, self).__init__(x, y)
         self.add_to_screen()
-        allSprite.add(self)
+        allSprite.add(self, layer=bullets.Peabullet.layer)
         bulletSprite.add(self)
 
     def add_to_screen(self):
@@ -440,7 +440,7 @@ class Sun(others.Sun):
         super(Sun, self).__init__(x=x, y=y, speed = speed)
         self.add_to_screen()
         sunList.add(self)
-        allSprite.add(self)
+        allSprite.add(self, layer=9)
 
     def add_to_screen(self):
         gameDisplay.blit(self.image, [self.rect.x, self.rect.y, Sun.size, Sun.size])
@@ -457,7 +457,7 @@ class LawnMower(others.LawnMower):
 
     def __init__(self,x, y):
         super(LawnMower, self).__init__(x=x, y=y)
-        allSprite.add(self)
+        allSprite.add(self, layer=8)
         lawnmowerSprite.add(self)
         self.add_to_screen()
 
@@ -486,7 +486,7 @@ class NormZombie(zombies.NormZombie):
         self.rect.y = 100 + self.level*80 - NormZombie.y_size
         self.last = 1000000000000
         zombieSprite.add(self)
-        allSprite.add(self)
+        allSprite.add(self, layer=zombies.NormZombie.layer + self.level)
 
     def bullet_collide(self, bullet):
         self.HP -= bullet.damage
@@ -587,7 +587,7 @@ class PresentZombie(zombies.PresentZombie):
         self.last = 1000000000000
         self.with_present = True
         zombieSprite.add(self)
-        allSprite.add(self)
+        allSprite.add(self, layer=zombies.PresentZombie.layer + self.level)
 
     def bullet_collide(self, bullet):
         self.HP -= bullet.damage
@@ -728,7 +728,7 @@ bool = [is_invaded0, is_invaded1, is_invaded2, is_invaded3, is_invaded4]
 zombieSprite = pygame.sprite.Group()
 sunList = pygame.sprite.Group()
 squareList = []
-allSprite = pygame.sprite.RenderUpdates() #to update a portion of a map per frame
+allSprite = pygame.sprite.LayeredUpdates() #to update a portion of a map per frame
 cardSprite = pygame.sprite.Group() #a bunch of cards
 bulletSprite = pygame.sprite.Group() #a bunch of bullets
 plantSprite = pygame.sprite.Group()
@@ -758,7 +758,7 @@ def gameloop():
     zombieSprite = pygame.sprite.Group()
     sunList = pygame.sprite.Group()
     squareList = []
-    allSprite = pygame.sprite.RenderUpdates()  # to update a portion of a map per frame
+    allSprite = pygame.sprite.LayeredUpdates()  # to update a portion of a map per frame
     cardSprite = pygame.sprite.Group()  # a bunch of cards
     bulletSprite = pygame.sprite.Group()  # a bunch of bullets
     plantSprite = pygame.sprite.Group()
