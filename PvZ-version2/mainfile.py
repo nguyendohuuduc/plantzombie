@@ -12,6 +12,7 @@ pygame.mixer.music.play(-1)
 eating_sound = pygame.mixer.Sound(file=os.path.join(SOUND_FOLDER, 'eating_sound.ogg'))
 hitting_sound = pygame.mixer.Sound(file=os.path.join(SOUND_FOLDER, 'hitting-sound.ogg'))
 explosion_sound = pygame.mixer.Sound(file=os.path.join(SOUND_FOLDER, 'explosion.ogg'))
+snowball_sound = pygame.mixer.Sound(file=os.path.join(SOUND_FOLDER, 'snowball-sound.ogg'))
 
 myfont = pygame.font.SysFont('monospace', 25)
 FPS = 40
@@ -348,7 +349,7 @@ class Snowbullet(bullets.Snowbullet):
     def __init__(self, x, y):
         super(Snowbullet, self).__init__(x, y)
         self.add_to_screen()
-        allSprite.add(self, bullets.Snowbullet.layer)
+        allSprite.add(self, layer=bullets.Snowbullet.layer)
         bulletSprite.add(self)
 
     def add_to_screen(self):
@@ -466,6 +467,7 @@ class LawnMower(others.LawnMower):
         allSprite.add(self, layer=8)
         lawnmowerSprite.add(self)
         self.add_to_screen()
+        self.sound_play = False #to ensure that sound is only played once. Bc sound in update, it keeps playing otherwise.
 
     def add_to_screen(self):
         gameDisplay.blit(self.image, [self.rect.x, self.rect.y, LawnMower.width, LawnMower.height])
@@ -473,6 +475,9 @@ class LawnMower(others.LawnMower):
     def update(self):
         if self.status == 'moving':
             self.rect.x += self.speed
+            if not self.sound_play:
+                self.sound_play = True
+                snowball_sound.play(maxtime=3200)
         if self.rect.x >= display_width:
             self.kill()
         for zombie in zombieSprite:

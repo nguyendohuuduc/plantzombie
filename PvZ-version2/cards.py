@@ -82,7 +82,7 @@ class SnowPea_card(Card):
     x_size = 40
     y_size = 57
     cooldown = 4000
-    cost = 0 #175
+    cost = 175
     frame_num = int(sheet.get_width()/x_size)
 
     def __init__(self, available, x, y):
