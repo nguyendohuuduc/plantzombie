@@ -5,7 +5,7 @@ OTHER_FOLDER = os.path.join(DIR_ROOT, 'miscellany')
 SOUND_FOLDER = os.path.join(DIR_ROOT, 'sound')
 
 pygame.init()
-pygame.mixer.init()
+pygame.mixer.init(channels=8)
 pygame.mixer.music.load(os.path.join(SOUND_FOLDER, 'WateryGrave.ogg'))
 pygame.mixer.music.play(-1)
 
@@ -20,10 +20,11 @@ display_width = 707 #used to be 710
 display_height = 500
 clock = pygame.time.Clock()
 gameDisplay = pygame.display.set_mode((display_width, display_height))
-pygame.display.set_caption('Plants vs Zombies')
+pygame.display.set_caption('Plants vs Zombies-Christmas Edition')
 white = (255, 255, 255)
 black = (0, 0, 0)
 red = (255, 0, 0)
+
 #classes
 
 class Square(others.Square):
@@ -323,7 +324,7 @@ class SnowPea(plants.SnowPea):
         Snowbullet(self.rect.x + Peashooter.x_size, self.rect.y + Peashooter.y_size/6)
 
     def change_status(self):
-        if bool[int((self.rect.y - 100)/Square.y_size)]:
+        if bool_lane[int((self.rect.y - 100)/Square.y_size)]:
             self.status = 'working'
         else:
             self.status = 'idle'
@@ -401,7 +402,7 @@ class Peashooter(plants.Peashooter):
         Peabullet(self.rect.x + Peashooter.x_size, self.rect.y + Peashooter.y_size/6)
 
     def change_status(self):
-        if bool[int((self.rect.y - 100)/Square.y_size)]:
+        if bool_lane[int((self.rect.y - 100)/Square.y_size)]:
             self.status = 'working'
         else:
             self.status = 'idle'
@@ -501,6 +502,7 @@ class NormZombie(zombies.NormZombie):
 
     def bullet_collide(self, bullet):
         self.HP -= bullet.damage
+
         hitting_sound.play(maxtime=500)
         if isinstance(bullet, Snowbullet):  # I dont want to stack slowness
             self.condition.append('frost')
@@ -737,7 +739,7 @@ class PresentZombie(zombies.PresentZombie):
 
 #to satisfy peashooter class. Cant hide these behind a function.
 is_invaded0 = is_invaded1 = is_invaded2 = is_invaded3 = is_invaded4 = False
-bool = [is_invaded0, is_invaded1, is_invaded2, is_invaded3, is_invaded4]
+bool_lane = [is_invaded0, is_invaded1, is_invaded2, is_invaded3, is_invaded4]
 
 # Lists
 zombieSprite = pygame.sprite.Group()
@@ -764,7 +766,7 @@ def display_message(message, color, y_displace = 0):
 #MAIN LOOP
 def gameloop():
     gameDisplay.fill(black)
-    global bool
+    global bool_lane
     global is_invaded0, is_invaded1, is_invaded2, is_invaded3, is_invaded4
     global zombieSprite, sunList, squareList, allSprite, cardSprite, bulletSprite, plantSprite, befuddled_zombie
 
@@ -788,7 +790,7 @@ def gameloop():
     MouseRelease = False
     Target = None  # target of drag, drop
     is_invaded0 = is_invaded1 = is_invaded2 = is_invaded3 = is_invaded4 = False
-    bool = [is_invaded0, is_invaded1, is_invaded2, is_invaded3, is_invaded4]
+    bool_lane = [is_invaded0, is_invaded1, is_invaded2, is_invaded3, is_invaded4]
     gameExit = False
     gameOver = False
     gameWin = False
@@ -1129,11 +1131,11 @@ def gameloop():
         textSprite.update()
         befuddled_zombie.update()
 
-        for i in range(len(bool)):
-            bool[i] = False
+        for i in range(len(bool_lane)):
+            bool_lane[i] = False
 
         for zombie in zombieSprite:
-            bool[zombie.level - 1] = True
+            bool_lane[zombie.level - 1] = True
             bullets = pygame.sprite.spritecollide(zombie, bulletSprite, dokill = False) #list of bullets collding with zombie
             if bullets:
                 for bullet in bullets:

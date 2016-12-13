@@ -21,7 +21,7 @@ class Square(pygame.sprite.Sprite):
 
 class Sun(pygame.sprite.Sprite):
     image = pygame.image.load(os.path.join(OTHER_FOLDER, 'snowflake2.png'))
-    size = 100
+    size = 65
     y_speed = 1
     layer = 9
 
