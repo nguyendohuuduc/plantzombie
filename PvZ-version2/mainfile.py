@@ -501,7 +501,7 @@ class PoleZombie(zombies.PoleZombie):
         self.has_pole = True
         self.at_frame_jumping = 0
         self.jumping_counter = 0
-        self.mark = None
+        self.mark = False #so that the zombie wont eat the plant it just jumps over
         zombieSprite.add(self)
         allSprite.add(self, layer=zombies.PoleZombie.layer + self.level)
 
@@ -516,7 +516,9 @@ class PoleZombie(zombies.PoleZombie):
     def plant_collide(self, plant):
         if self.has_pole:
             self.status = 'jumping'
-            self.mark = plant
+            if not self.mark:
+                self.mark = plant #so that only one plant is self.mark forever. Sometimes when zombie
+                                  #jumps, it collide with another plant as well
         else:
             if plant is not self.mark:
                 self.status = 'eating'
@@ -622,9 +624,9 @@ class PoleZombie(zombies.PoleZombie):
                 self.image = self.jump_frame[self.at_frame_jumping]
             if self.jumping_counter % (jump_time / PoleZombie.frame_num3 * FPS) == 0:
                 self.at_frame_jumping += 1
-                self.rect.x -= 8
+                self.rect.x -= 7.9
             if self.at_frame_jumping > PoleZombie.frame_num3 - 1:
-                self.status = 'walking'
+                self.status = 'moving'
                 self.has_pole = False
                 self.rect.bottom = 100 + 80*self.level
 
