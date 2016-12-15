@@ -11,7 +11,7 @@ class Peabullet(pygame.sprite.Sprite):
     damage = 5
     x_speed = 5
     y_speed = 0
-    layer = 3
+    layer = 9
 
     def __init__(self, x, y):
         super(Peabullet, self).__init__()
@@ -29,7 +29,7 @@ class Snowbullet(pygame.sprite.Sprite):
     x_speed = 5
     y_speed = 0
     effect_time = 3000
-    layer = 3
+    layer = 9
 
     def __init__(self, x, y):
         super(Snowbullet, self).__init__()

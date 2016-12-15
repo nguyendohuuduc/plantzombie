@@ -4,8 +4,9 @@ DIR_ROOT = os.path.dirname(os.path.abspath(__file__))
 OTHER_FOLDER = os.path.join(DIR_ROOT, 'miscellany')
 SOUND_FOLDER = os.path.join(DIR_ROOT, 'sound')
 
+pygame.mixer.pre_init()
 pygame.init()
-pygame.mixer.init(channels=8)
+#pygame.mixer.init(channels=8)
 pygame.mixer.music.load(os.path.join(SOUND_FOLDER, 'WateryGrave.ogg'))
 pygame.mixer.music.play(-1)
 
@@ -80,7 +81,7 @@ class SunBox(others.SunBox):
 
 class Shovel(others.Shovel):
 
-    def __init__(self, x =395, y=20):
+    def __init__(self, x =425, y=20):
         super(Shovel, self).__init__(x=x, y=y)
         self.add_to_screen()
         allSprite.add(self, layer=others.Shovel.layer)
@@ -96,7 +97,7 @@ class Shovel(others.Shovel):
 
 class Hypnoshroom_card(cards.Hypnoshroom_card):
 
-    def __init__(self, x = 343, y=20, available=False):
+    def __init__(self, x = 370, y=20, available=False):
         super(Hypnoshroom_card, self).__init__(available=available, x=x, y=y)
         allSprite.add(self, layer=cards.Hypnoshroom_card.layer)
         cardSprite.add(self)
@@ -138,7 +139,7 @@ class Hypnoshroom(plants.Hypnoshroom):
 
 class PotatoMine_card(cards.PotatoMine_card):
 
-    def __init__(self, x = 243, y=20, available = False):
+    def __init__(self, x = 260, y=20, available = False):
         super(PotatoMine_card, self).__init__(available=available, x=x, y=y)
         allSprite.add(self, layer=cards.PotatoMine_card.layer)
         cardSprite.add(self)
@@ -191,7 +192,7 @@ class PotatoMine(plants.PotatoMine):
 
 class Wallnut_card(cards.Wallnut_card):
 
-    def __init__(self, x = 193, y=20, available = False):
+    def __init__(self, x = 205, y=20, available = False):
         super(Wallnut_card, self).__init__(available=available, x=x, y=y)
         allSprite.add(self, layer=cards.Wallnut_card.layer)
         cardSprite.add(self)
@@ -236,7 +237,7 @@ class Wallnut(plants.Wallnut):
 
 class Sunflower_card(cards.Sunflower_card):
 
-    def __init__(self, x=143, y=20, available = False):
+    def __init__(self, x=150, y=20, available = False):
         super(Sunflower_card, self).__init__(available=available, x=x, y=y)
         allSprite.add(self, layer=cards.Sunflower_card.layer)
         cardSprite.add(self)
@@ -288,7 +289,7 @@ class Sunflower(plants.Sunflower):
 
 class SnowPea_card(cards.SnowPea_card):
 
-    def __init__(self, x=293, y=20, available = False):
+    def __init__(self, x=315, y=20, available = False):
         super(SnowPea_card, self).__init__(available=available, x=x, y=y)
         allSprite.add(self, layer=cards.SnowPea_card.layer)
         cardSprite.add(self)
@@ -366,7 +367,7 @@ class Snowbullet(bullets.Snowbullet):
 
 
 class Peashooter_card(cards.Peashooter_card):
-    def __init__(self, x=93, y=20, available = False):
+    def __init__(self, x=95, y=20, available = False):
         super(Peashooter_card, self).__init__(available=available, x=x, y=y)
         allSprite.add(self, layer=cards.Peashooter_card.layer)
         cardSprite.add(self)
@@ -461,17 +462,17 @@ class Sun(others.Sun):
         if self.rect.bottom >= 500: #to improve performance
             self.y_speed = 0
 
-class LawnMower(others.LawnMower):
+class Snowball(others.Snowball):
 
     def __init__(self,x, y):
-        super(LawnMower, self).__init__(x=x, y=y)
+        super(Snowball, self).__init__(x=x, y=y)
         allSprite.add(self, layer=8)
         lawnmowerSprite.add(self)
         self.add_to_screen()
         self.sound_play = False #to ensure that sound is only played once. Bc sound in update, it keeps playing otherwise.
 
     def add_to_screen(self):
-        gameDisplay.blit(self.image, [self.rect.x, self.rect.y, LawnMower.width, LawnMower.height])
+        gameDisplay.blit(self.image, [self.rect.x, self.rect.y, Snowball.width, Snowball.height])
 
     def update(self):
         if self.status == 'moving':
@@ -485,6 +486,156 @@ class LawnMower(others.LawnMower):
             if self.rect.colliderect(zombie.rect):
                 self.status= 'moving'
                 zombie.kill()
+
+
+class PoleZombie(zombies.PoleZombie):
+
+    def __init__(self, x):
+        super(PoleZombie, self).__init__()
+        self.image = self.walking_frame_with_pole[0]
+        self.rect = self.image.get_rect()
+        self.level = random.randint(1, 5)
+        self.rect.x = x
+        self.rect.bottom = 100 + self.level * 80
+        self.last = 100000000000
+        self.has_pole = True
+        self.at_frame_jumping = 0
+        self.jumping_counter = 0
+        self.mark = None
+        zombieSprite.add(self)
+        allSprite.add(self, layer=zombies.PoleZombie.layer + self.level)
+
+    def bullet_collide(self, bullet):
+        if self.status != 'jumping':
+            self.HP -= bullet.damage
+            hitting_sound.play(maxtime=500)
+            if isinstance(bullet, Snowbullet):  # I dont want to stack slowness
+                self.condition.append('frost')
+                self.last = pygame.time.get_ticks()
+
+    def plant_collide(self, plant):
+        if self.has_pole:
+            self.status = 'jumping'
+            self.mark = plant
+        else:
+            if plant is not self.mark:
+                self.status = 'eating'
+                plant.HP -= self.dps/FPS
+                eating_sound.play(maxtime=1000)
+                if plant.HP <= 0 and isinstance(plant, Hypnoshroom):
+                    self.add(befuddled_zombie)
+                    self.remove(zombieSprite)
+                    self.condition.append('muddled')
+            else:
+                self.status = 'moving'
+
+    def update(self):
+        now = pygame.time.get_ticks()
+        if 'frost' in self.condition:
+            if self.speed == PoleZombie.speed:
+                self.speed = self.speed / 2
+                self.dps = self.dps / 2
+            if now - self.last >= Snowbullet.effect_time:
+                self.speed = PoleZombie.speed
+                self.dps = PoleZombie.dps
+                self.condition.remove('frost')
+
+        if 'muddled' in self.condition and self.speed < 0:
+            self.status = 'moving'
+            self.speed = -PoleZombie.speed
+
+        if self.status == 'moving' and self.has_pole:
+            self.walking_counter += 1
+            self.eating_counter = 0
+            self.rect.x += self.speed
+            if 'frost' in self.condition:
+                if self.walking_counter % 40 == 0:
+                    self.at_frame_walking += 1
+                if self.at_frame_walking > (PoleZombie.frame_num1-1):
+                    self.at_frame_walking = 0
+                if 'muddled' in self.condition:
+                    self.image = pygame.transform.flip(self.walking_frame_with_pole[self.at_frame_walking],True,False)
+
+            else:
+                if self.walking_counter % 15 == 0:
+                    self.at_frame_walking += 1
+                if self.at_frame_walking > (PoleZombie.frame_num1-1):
+                    self.at_frame_walking = 0
+                if 'muddled' in self.condition:
+                    self.image = pygame.transform.flip(self.walking_frame_with_pole[self.at_frame_walking], True, False)
+                else:
+                    self.image = self.walking_frame_with_pole[self.at_frame_walking]
+
+        elif self.status == 'moving' and not self.has_pole:
+            self.walking_counter += 1
+            self.eating_counter = 0
+            self.rect.x += self.speed
+            if 'frost' in self.condition:
+                if self.walking_counter % 40 == 0:
+                    self.at_frame_walking += 1
+                if self.at_frame_walking > (PoleZombie.frame_num2 - 1):
+                    self.at_frame_walking = 0
+                if 'muddled' in self.condition:
+                    self.image = pygame.transform.flip(self.walking_frame_no_pole[self.at_frame_walking], True, False)
+
+            else:
+                if self.walking_counter % 15 == 0:
+                    self.at_frame_walking += 1
+                if self.at_frame_walking > (PoleZombie.frame_num2 - 1):
+                    self.at_frame_walking = 0
+                if 'muddled' in self.condition:
+                    self.image = pygame.transform.flip(self.walking_frame_no_pole[self.at_frame_walking], True, False)
+                else:
+                    self.image = self.walking_frame_no_pole[self.at_frame_walking]
+
+        elif self.status == 'eating':
+            self.eating_counter += 1
+            self.walking_counter = 0
+            if 'frost' in self.condition:
+                if self.eating_counter % 20 == 0:
+                    self.at_frame_eating += 1
+                if self.at_frame_eating > (PoleZombie.frame_num4 - 1):
+                    self.at_frame_eating = 0
+                if 'muddled' in self.condition:
+                    self.image = pygame.transform.flip(self.eating_frame[self.at_frame_eating], True, False)
+                else:
+                    self.image = self.eating_frame[self.at_frame_eating]
+
+            else:
+                if self.eating_counter % 5 == 0:
+                    self.at_frame_eating += 1
+                if self.at_frame_eating > (PoleZombie.frame_num4 - 1):
+                    self.at_frame_eating = 0
+                if 'muddled' in self.condition:
+                    self.image = pygame.transform.flip(self.eating_frame[self.at_frame_eating], True, False)
+                else:
+                    self.image = self.eating_frame[self.at_frame_eating]
+
+        elif self.status == 'jumping':
+            jump_time = 1.5
+            self.rect.y = 100 + 80*self.level - 130
+            self.eating_counter = self.walking_counter = 0
+            self.jumping_counter += 1
+            if 'muddled' in self.condition:
+                self.image = pygame.transform.flip(self.jump_frame[self.at_frame_jumping], True, False)
+            else:
+                self.image = self.jump_frame[self.at_frame_jumping]
+            if self.jumping_counter % (jump_time / PoleZombie.frame_num3 * FPS) == 0:
+                self.at_frame_jumping += 1
+                self.rect.x -= 8
+            if self.at_frame_jumping > PoleZombie.frame_num3 - 1:
+                self.status = 'walking'
+                self.has_pole = False
+                self.rect.bottom = 100 + 80*self.level
+
+        if 0 > self.rect.x or self.rect.x > display_width: #if bullet out of screen, kill it. Better performance
+            self.kill()
+
+        elif 0 > self.rect.y or self.rect.y > display_height:
+            self.kill()
+
+        if self.HP <= 0:
+            self.kill()
 
 
 class NormZombie(zombies.NormZombie):
@@ -509,6 +660,7 @@ class NormZombie(zombies.NormZombie):
             self.last = pygame.time.get_ticks()
 
     def plant_collide(self, plant):
+        self.status = 'eating'
         plant.HP -= self.dps/FPS
         eating_sound.play(maxtime=1000)
         if plant.HP <= 0 and isinstance(plant, Hypnoshroom):
@@ -612,6 +764,7 @@ class PresentZombie(zombies.PresentZombie):
             self.last = pygame.time.get_ticks()
 
     def plant_collide(self, plant):
+        self.status = 'eating'
         plant.HP -= self.dps / FPS
         eating_sound.play(maxtime=1000)
         if plant.HP <= 0 and isinstance(plant, Hypnoshroom):
@@ -819,19 +972,20 @@ def gameloop():
 
     fence = pygame.image.load(os.path.join(OTHER_FOLDER, 'fence.png'))
     gameDisplay.blit(fence, [0,0])
-    deck_image = pygame.image.load(os.path.join(OTHER_FOLDER, 'deck2.png'))
-    gameDisplay.blit(deck_image, [10, 10, 400, 100])
-
+    deck_image = pygame.image.load(os.path.join(OTHER_FOLDER, 'deck.png'))
+    gameDisplay.blit(deck_image, [10, 10])
+    shovel_box = pygame.image.load(os.path.join(OTHER_FOLDER, 'shovel-box.png'))
+    gameDisplay.blit(shovel_box, [420, 15])
 
     #add some tiles
-    tile_image = pygame.image.load(os.path.join(OTHER_FOLDER, 'red-tile-001.jpg'))
+    tile_image = pygame.image.load(os.path.join(OTHER_FOLDER, 'red-tile.jpg'))
     for i in range(5):
         gameDisplay.blit(tile_image,[660, (100+i*80)])
         gameDisplay.blit(tile_image, [0, 100+i*80])
     background = gameDisplay.copy()
 
     for i in range(5):
-        LawnMower(0, (100+i*80))
+        Snowball(0, (100 + i * 80))
 
     sunbox = SunBox()
     SnowPea_card()
@@ -889,9 +1043,9 @@ def gameloop():
             x = random.randint(0, 550)
             Sun(x=x, y=100, speed=1)
 
-
         if counter == 20*FPS:
             NormZombie(700)
+            PoleZombie(690)
         elif counter == 30 * FPS:
             PresentZombie(700)
             planning_stage = True
@@ -902,6 +1056,8 @@ def gameloop():
                 for i in range(random.randint(1, 2)):
                     NormZombie(700-x)
                     x += 10
+            if counter % (70*FPS) == 0:
+                PoleZombie(700)
 
         if counter == 80 * FPS:
            planning_stage = False
@@ -915,7 +1071,8 @@ def gameloop():
                 for i in range(random.randint(2, 3)):
                     NormZombie(700-x)
                     x += 10
-
+            elif counter % (50*FPS) == 0:
+                PoleZombie(700)
 
         if counter == 110 * FPS:
             stage1 = False
@@ -927,7 +1084,7 @@ def gameloop():
 
         if wave1:
             x = 0
-            for i in range(7):
+            for i in range(5):
                 zom = NormZombie(700-x)
                 first_wave_zombie.add(zom)
                 x += 7
@@ -936,6 +1093,10 @@ def gameloop():
                 zom = PresentZombie(700-x)
                 first_wave_zombie.add(zom)
                 x+= 10
+            x = 0
+            for i in range(2):
+                zom = PoleZombie(700-x)
+                first_wave_zombie.add(zom)
             wave1 = False #so that zombies don't ooze out in tides
 
         if wave01 and len(first_wave_zombie) == 0:
@@ -946,12 +1107,15 @@ def gameloop():
             if counter % (6*FPS) == 0:
                 NormZombie(700)
                 NormZombie(690)
+                PoleZombie(680)
             elif counter % (15*FPS) == 0:
                 x = 0
                 PresentZombie(700)
                 for i in range(random.randint(1, 3)):
                     NormZombie(700 - x)
                     x += 10
+            elif counter % (30*FPS) == 0:
+                PoleZombie(700)
 
         if counter == 170 * FPS:
             stage2 = False
@@ -963,15 +1127,19 @@ def gameloop():
 
         if wave2:
             x = 0
-            for i in range(7):
+            for i in range(6):
                 zom = NormZombie(700-x)
                 second_wave_zombie.add(zom)
                 x+=7
             x = 0
-            for i in range(4):
+            for i in range(3):
                 zom = PresentZombie(700-x)
                 second_wave_zombie.add(zom)
                 x+=5
+            x = 0
+            for i in range(2):
+                zom = PoleZombie(700-x)
+                second_wave_zombie.add(zom)
             wave2 = False
 
         if wave02 and len(second_wave_zombie) == 0:
@@ -993,6 +1161,9 @@ def gameloop():
                 for i in range(2):
                     PresentZombie(700-x)
                     x += 10
+            elif counter % (20*FPS) == 0:
+                x = 0
+                PoleZombie(700-x)
 
         if counter == 210 * FPS:
             stage3 = False
@@ -1013,6 +1184,10 @@ def gameloop():
                 zom = PresentZombie(700-x)
                 final_wave_Zombie.add(zom)
                 x+=5
+            x=0
+            for i in range(3):
+                zom = PoleZombie(700-x)
+                final_wave_Zombie.add(zom)
             wave3 = False
             wave03 = True
 
@@ -1145,7 +1320,6 @@ def gameloop():
 
             if plants: #a zombie can only eat a plant once at any time. so list length is 1
                 zombie.plant_collide(plants[0])
-                zombie.status = 'eating'
                 if isinstance(plants[0], PotatoMine) and plants[0].explodable and not plants[0].dead_already:
                     zombie.kill()
                     plants[0].exploded()
@@ -1156,14 +1330,21 @@ def gameloop():
                 for traitor in traitors:
                     if traitor.level == zombie.level:
                         zombie.plant_collide(traitor)
-                        zombie.status = 'eating'
                         eating = True
                         break
-                if eating == False:
-                    zombie.status = 'moving'
 
+                if eating == False:
+                    if isinstance(zombie, PoleZombie):
+                        if zombie.status != 'jumping':
+                            zombie.status = 'moving'
+                    else:
+                        zombie.status = 'moving'
             elif not plants and not traitors:
-                zombie.status = 'moving'
+                if isinstance(zombie, PoleZombie):
+                    if zombie.status != 'jumping':
+                        zombie.status = 'moving'
+                else:
+                    zombie.status = 'moving'
 
             if zombie.rect.left <= 0:
                 gameOver = True
@@ -1175,14 +1356,21 @@ def gameloop():
                 for bad_zombie in bad_zombies:
                     if bad_zombie.level == traitorZombie.level:
                         traitorZombie.plant_collide(bad_zombie)
-                        traitorZombie.status = 'eating'
                         eating = True
                         break
                 if eating == False:
-                    traitorZombie.status = 'moving'
+                    if isinstance(traitorZombie, PoleZombie):
+                        if traitorZombie.status != 'jumping':
+                            traitorZombie.status = 'moving'
+                    else:
+                        traitorZombie.status = 'moving'
 
             else:
-                traitorZombie.status = 'moving'
+                if isinstance(traitorZombie, PoleZombie):
+                    if traitorZombie.status != 'jumping':
+                        traitorZombie.status = 'moving'
+                else:
+                    traitorZombie.status = 'moving'
 
         allSprite.clear(gameDisplay, background)
         new_positions = allSprite.draw(gameDisplay)

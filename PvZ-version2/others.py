@@ -20,7 +20,7 @@ class Square(pygame.sprite.Sprite):
 
 
 class Sun(pygame.sprite.Sprite):
-    image = pygame.image.load(os.path.join(OTHER_FOLDER, 'snowflake2.png'))
+    image = pygame.image.load(os.path.join(OTHER_FOLDER, 'snowflake.png'))
     size = 65
     y_speed = 1
     layer = 9
@@ -43,7 +43,7 @@ class SunBox(pygame.sprite.Sprite):
         super(SunBox, self).__init__()
         self.image = SunBox.image
         self.rect = self.image.get_rect()
-        self.rect.x = 20
+        self.rect.x = 17
         self.rect.y = 19
         self.sun_capacity = 50
 
@@ -67,7 +67,7 @@ class Shovel(pygame.sprite.Sprite):
         self.available = True
 
 
-class LawnMower(pygame.sprite.Sprite):
+class Snowball(pygame.sprite.Sprite):
     image = pygame.image.load(os.path.join(OTHER_FOLDER, 'Snowballs.png'))
     width = 60
     height = 60
@@ -75,12 +75,12 @@ class LawnMower(pygame.sprite.Sprite):
     layer = 9
 
     def __init__(self,x , y):
-        super(LawnMower, self).__init__()
-        self.image = LawnMower.image
+        super(Snowball, self).__init__()
+        self.image = Snowball.image
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
-        self.speed = LawnMower.speed
+        self.speed = Snowball.speed
         self.status = 'idle'
 
 if __name__ == "__main__":
