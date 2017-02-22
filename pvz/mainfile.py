@@ -1,23 +1,27 @@
-#Always use updates. The only ones don't use update are the cards
-import pygame, plants, others, zombies, random, os,time, cards, bullets
+# Always use updates. The only ones don't use update are the cards
+import pygame, plants, others, random, os, bullets, zombies, cards
+
 DIR_ROOT = os.path.dirname(os.path.abspath(__file__))
 OTHER_FOLDER = os.path.join(DIR_ROOT, 'miscellany')
 SOUND_FOLDER = os.path.join(DIR_ROOT, 'sound')
 
 pygame.mixer.pre_init()
 pygame.init()
-#pygame.mixer.init(channels=8)
-pygame.mixer.music.load(os.path.join(SOUND_FOLDER, 'WateryGrave.ogg'))
-pygame.mixer.music.play(-1)
 
 eating_sound = pygame.mixer.Sound(file=os.path.join(SOUND_FOLDER, 'eating_sound.ogg'))
 hitting_sound = pygame.mixer.Sound(file=os.path.join(SOUND_FOLDER, 'hitting-sound.ogg'))
 explosion_sound = pygame.mixer.Sound(file=os.path.join(SOUND_FOLDER, 'explosion.ogg'))
 snowball_sound = pygame.mixer.Sound(file=os.path.join(SOUND_FOLDER, 'snowball-sound.ogg'))
 
+pygame.mixer.set_num_channels(50)
+pygame.mixer.music.load(os.path.join(SOUND_FOLDER, 'WateryGrave.ogg'))
+
+pygame.mixer.music.play(-1)
+
+
 myfont = pygame.font.SysFont('monospace', 25)
 FPS = 40
-display_width = 707 #used to be 710
+display_width = 707
 display_height = 500
 clock = pygame.time.Clock()
 gameDisplay = pygame.display.set_mode((display_width, display_height))
@@ -26,139 +30,21 @@ white = (255, 255, 255)
 black = (0, 0, 0)
 red = (255, 0, 0)
 
-#classes
-
-class Square(others.Square):
-
-    def __init__(self, x, y):
-        super(Square, self).__init__(x, y)
-        self.add_to_screen()
-        squareList.append(self) #to test collision later
-
-    def add_to_screen(self):
-        gameDisplay.blit(self.image, [self.rect.x, self.rect.y, Square.x_size, Square.y_size])
-
-
-class Message(pygame.sprite.Sprite):
-    font = os.path.join(OTHER_FOLDER, 'blood_font.otf')
-
-    def __init__(self, string, color, size, time):
-        super(Message, self).__init__()
-        myFont = pygame.font.Font(Message.font, size)
-        textmessage = myFont.render(string,1, color)
-        self.image = textmessage
-        self.rect = self.image.get_rect()
-        self.rect.center = (display_width/2, display_height/2)
-        self.last = pygame.time.get_ticks()
-        self.time_last = time
-        gameDisplay.blit(self.image, [self.rect.left, self.rect.top])
-        allSprite.add(self, layer=10)
-        textSprite.add(self)
-
-    def update(self):
-        now = pygame.time.get_ticks()
-        if now - self.last >= self.time_last:
-            self.kill()
-
-
-class SunBox(others.SunBox):
-    def __init__(self):
-        super(SunBox, self).__init__()
-        self.add_to_screen()
-        allSprite.add(self)
-
-    def add_to_screen(self):
-        myfont = pygame.font.SysFont(pygame.font.get_default_font(), 20)
-        scoretext=myfont.render(str(self.sun_capacity), 1,black)
-        self.image = pygame.image.load(os.path.join(OTHER_FOLDER, 'sunbox.png'))
-        gameDisplay.blit(self.image, [self.rect.x, self.rect.y, SunBox.height, SunBox.width])
-        self.image.blit(scoretext, (25, 42))
-
-    def update(self, sun_amount):
-        self.sun_capacity += sun_amount
-        self.add_to_screen()
-
-
-class Shovel(others.Shovel):
-
-    def __init__(self, x =425, y=20):
-        super(Shovel, self).__init__(x=x, y=y)
-        self.add_to_screen()
-        allSprite.add(self, layer=others.Shovel.layer)
-        cardSprite.add(self)
-
-    def add_to_screen(self):
-        gameDisplay.blit(self.image,[self.rect.x, self.rect.y, Shovel.width, Shovel.height])
-
-    def move(self, new_x, new_y):
-        self.rect.x = new_x
-        self.rect.y = new_y
-
-
-class Hypnoshroom_card(cards.Hypnoshroom_card):
-
-    def __init__(self, x = 370, y=20, available=False):
-        super(Hypnoshroom_card, self).__init__(available=available, x=x, y=y)
-        allSprite.add(self, layer=cards.Hypnoshroom_card.layer)
-        cardSprite.add(self)
-
-    def add_to_screen(self):
-        gameDisplay.blit(self.image, [self.rect.x, self.rect.y, Hypnoshroom_card.x_size, Hypnoshroom_card.y_size])
-
-    def update(self):
-        now = pygame.time.get_ticks()
-        if now - self.last >= self.cooldown and not self.available:
-            self.available = True
-        self.image = self.frames[self.cur_patch_num]
-        if self.available:
-            self.cur_patch_num = 0
-            self.counter = 0
-        elif not self.available:
-            if self.counter % FPS == 0:
-                self.cur_patch_num += 1
-            self.counter += 1
+# classes
 
 
 class Hypnoshroom(plants.Hypnoshroom):
 
     def __init__(self, x, y):
         super(Hypnoshroom, self).__init__(x, y)
-        allSprite.add(self, layer= plants.Hypnoshroom.layer)
+        allSprite.add(self, layer=plants.Hypnoshroom.layer)
         plantSprite.add(self)
 
     def update(self):
         self.image = self.frames[self.cur_patch_num]
-        if self.counter % 15 == 0:
-            self.cur_patch_num += 1
-        if self.cur_patch_num > (Hypnoshroom.frame_num-1):
-            self.cur_patch_num = 0
+        self.change_frame(15)
         self.counter += 1
-        if self.HP <= 0:
-            self.kill()
-
-
-class PotatoMine_card(cards.PotatoMine_card):
-
-    def __init__(self, x = 260, y=20, available = False):
-        super(PotatoMine_card, self).__init__(available=available, x=x, y=y)
-        allSprite.add(self, layer=cards.PotatoMine_card.layer)
-        cardSprite.add(self)
-
-    def add_to_screen(self):
-        gameDisplay.blit(self.image, [self.rect.x, self.rect.y, PotatoMine_card.x_size, PotatoMine_card.y_size])
-
-    def update(self):
-        now = pygame.time.get_ticks()
-        if now - self.last >= self.cooldown and not self.available:
-            self.available = True
-        self.image = self.frames[self.cur_patch_num]
-        if self.available:
-            self.cur_patch_num = 0
-            self.counter = 0
-        elif not self.available:
-            if self.counter % FPS == 0:
-                self.cur_patch_num += 1
-            self.counter += 1
+        self.check_dead()
 
 
 class PotatoMine(plants.PotatoMine):
@@ -178,9 +64,10 @@ class PotatoMine(plants.PotatoMine):
 
     def update(self):
         self.image = self.frames[self.cur_patch_num]
+
+        self.check_dead()
+
         now = pygame.time.get_ticks()
-        if self.HP <= 0:
-            self.kill()
         if now - self.last >= self.deto_time and self.cur_patch_num != 2:
             self.cur_patch_num = 1
             self.explodable = True
@@ -188,30 +75,6 @@ class PotatoMine(plants.PotatoMine):
             self.counter += 1
             if self.counter % (FPS) == 0:
                 self.kill()
-
-
-class Wallnut_card(cards.Wallnut_card):
-
-    def __init__(self, x = 205, y=20, available = False):
-        super(Wallnut_card, self).__init__(available=available, x=x, y=y)
-        allSprite.add(self, layer=cards.Wallnut_card.layer)
-        cardSprite.add(self)
-
-    def add_to_screen(self):
-        gameDisplay.blit(self.image, [self.rect.x, self.rect.y, Wallnut_card.x_size, Wallnut_card.y_size])
-
-    def update(self):
-        now = pygame.time.get_ticks()
-        if now - self.last >= self.cooldown and not self.available:
-            self.available = True
-        self.image = self.frames[self.cur_patch_num]
-        if self.available:
-            self.cur_patch_num = 0
-            self.counter = 0
-        elif not self.available:
-            if self.counter % FPS == 0:
-                self.cur_patch_num += 1
-            self.counter += 1
 
 
 class Wallnut(plants.Wallnut):
@@ -222,41 +85,11 @@ class Wallnut(plants.Wallnut):
         plantSprite.add(self)
 
     def add_to_screen(self):
-        gameDisplay.blit(self.image,[self.rect.x, self.rect.y, Wallnut.x_size, Wallnut.y_size])
+        gameDisplay.blit(self.image, [self.rect.x, self.rect.y, Wallnut.x_size, Wallnut.y_size])
 
     def update(self):
-        if self.HP <= 120:
-            self.image = self.frames[1]
-        if self.HP <= 80:
-            self.image = self.frames[2]
-        if self.HP <= 40:
-            self.image = self.frames[3]
-        if self.HP <= 0:
-            self.kill()
-
-
-class Sunflower_card(cards.Sunflower_card):
-
-    def __init__(self, x=150, y=20, available = False):
-        super(Sunflower_card, self).__init__(available=available, x=x, y=y)
-        allSprite.add(self, layer=cards.Sunflower_card.layer)
-        cardSprite.add(self)
-
-    def add_to_screen(self):
-        gameDisplay.blit(self.image, [self.rect.x, self.rect.y, Peashooter_card.x_size, Peashooter_card.y_size])
-
-    def update(self):
-        now = pygame.time.get_ticks()
-        if now - self.last >= self.cooldown and not self.available:
-            self.available = True
-        self.image = self.frames[self.cur_patch_num]
-        if self.available:
-            self.cur_patch_num = 0
-            self.counter = 0
-        elif not self.available:
-            if self.counter % FPS == 0:
-                self.cur_patch_num += 1
-            self.counter += 1
+        self.change_frame()
+        self.check_dead()
 
 
 class Sunflower(plants.Sunflower):
@@ -267,10 +100,10 @@ class Sunflower(plants.Sunflower):
         plantSprite.add(self)
 
     def add_to_screen(self):
-        gameDisplay.blit(self.image, [self.rect.x, self.rect.y, Square.x_size, Square.y_size])
+        gameDisplay.blit(self.image, [self.rect.x, self.rect.y, Sunflower.x_size, Sunflower.y_size])
 
     def generate_sun(self):
-        Sun(x = self.rect.x, y = self.rect.y, speed=0)
+        others.Sun(x=self.rect.x, y=self.rect.y, speed=0, gameDisplay=gameDisplay, allSprite=allSprite, sunList=sunList)
 
     def update(self):
         self.counter += 1
@@ -279,36 +112,8 @@ class Sunflower(plants.Sunflower):
         if now - self.last >= self.between_suns:
             self.last = now
             self.generate_sun()
-        if self.counter % 10 == 0:
-            self.cur_patch_num += 1
-        if self.cur_patch_num > (self.frame_num - 1):
-            self.cur_patch_num = 0
-        if self.HP <= 0:
-            self.kill()
-
-
-class SnowPea_card(cards.SnowPea_card):
-
-    def __init__(self, x=315, y=20, available = False):
-        super(SnowPea_card, self).__init__(available=available, x=x, y=y)
-        allSprite.add(self, layer=cards.SnowPea_card.layer)
-        cardSprite.add(self)
-
-    def add_to_screen(self):
-        gameDisplay.blit(self.image, [self.rect.x, self.rect.y, SnowPea_card.x_size, SnowPea_card.y_size])
-
-    def update(self):
-        now = pygame.time.get_ticks()
-        if now - self.last >= self.cooldown and not self.available:
-            self.available = True
-        self.image = self.frames[self.cur_patch_num]
-        if self.available:
-            self.cur_patch_num = 0
-            self.counter = 0
-        elif not self.available:
-            if self.counter % FPS == 0:
-                self.cur_patch_num += 1
-            self.counter += 1
+        self.change_frame(10)
+        self.check_dead()
 
 
 class SnowPea(plants.SnowPea):
@@ -319,13 +124,13 @@ class SnowPea(plants.SnowPea):
         plantSprite.add(self)
 
     def add_to_screen(self):
-        gameDisplay.blit(self.image, [self.rect.x, self.rect.y, Square.x_size, Square.y_size])
+        gameDisplay.blit(self.image, [self.rect.x, self.rect.y, SnowPea.x_size, SnowPea.y_size])
 
     def shoot_pea(self):
-        Snowbullet(self.rect.x + Peashooter.x_size, self.rect.y + Peashooter.y_size/6)
+        bullets.Snowbullet(self.rect.x + SnowPea.x_size, self.rect.y + SnowPea.y_size/6, gameDisplay, allSprite, bulletSprite)
 
     def change_status(self):
-        if bool_lane[int((self.rect.y - 100)/Square.y_size)]:
+        if bool_lane[int((self.rect.y - 100)/others.Square.y_size)]:
             self.status = 'working'
         else:
             self.status = 'idle'
@@ -334,59 +139,12 @@ class SnowPea(plants.SnowPea):
         self.change_status()
         self.counter += 1
         self.image = self.frames[self.cur_patch_num]
-        if self.counter % 10 == 0:
-            self.cur_patch_num += 1
-        if self.cur_patch_num > (SnowPea.frame_num - 1):
-            self.cur_patch_num = 0
+        self.change_frame(10)
         now = pygame.time.get_ticks()
         if now - self.last >= self.between_bullet and self.status == 'working':
             self.last = now
             self.shoot_pea()
-        if self.HP <= 0:
-            self.kill()
-
-
-class Snowbullet(bullets.Snowbullet):
-
-    def __init__(self, x, y):
-        super(Snowbullet, self).__init__(x, y)
-        self.add_to_screen()
-        allSprite.add(self, layer=bullets.Snowbullet.layer)
-        bulletSprite.add(self)
-
-    def add_to_screen(self):
-        gameDisplay.blit(self.image, [self.rect.x, self.rect.y, Square.x_size, Square.y_size])
-
-    def update(self):
-        self.rect.x = self.rect.x + Snowbullet.x_speed
-        self.rect.y = self.rect.y + Snowbullet.y_speed
-        if 0 > self.rect.x or self.rect.x > display_width: #if bullet out of screen, kill it. Better performance
-            self.kill()
-        elif 0 > self.rect.y or self.rect.y > display_height:
-            self.kill()
-
-
-class Peashooter_card(cards.Peashooter_card):
-    def __init__(self, x=95, y=20, available = False):
-        super(Peashooter_card, self).__init__(available=available, x=x, y=y)
-        allSprite.add(self, layer=cards.Peashooter_card.layer)
-        cardSprite.add(self)
-
-    def add_to_screen(self):
-        gameDisplay.blit(self.image, [self.rect.x, self.rect.y, Peashooter_card.x_size, Peashooter_card.y_size])
-
-    def update(self):
-        now = pygame.time.get_ticks()
-        if now - self.last >= self.cooldown and not self.available:
-            self.available = True
-        self.image = self.frames[self.cur_patch_num]
-        if self.available:
-            self.cur_patch_num = 0
-            self.counter = 0
-        elif not self.available:
-            if self.counter % FPS == 0:
-                self.cur_patch_num += 1
-            self.counter += 1
+        self.check_dead()
 
 
 class Peashooter(plants.Peashooter):
@@ -397,13 +155,13 @@ class Peashooter(plants.Peashooter):
         plantSprite.add(self)
 
     def add_to_screen(self):
-        gameDisplay.blit(self.image, [self.rect.x, self.rect.y, Square.x_size, Square.y_size])
+        gameDisplay.blit(self.image, [self.rect.x, self.rect.y, Peashooter.x_size, Peashooter.y_size])
 
     def shoot_pea(self):
-        Peabullet(self.rect.x + Peashooter.x_size, self.rect.y + Peashooter.y_size/6)
+        bullets.Peabullet(self.rect.x + Peashooter.x_size, self.rect.y + Peashooter.y_size/6, gameDisplay, allSprite, bulletSprite)
 
     def change_status(self):
-        if bool_lane[int((self.rect.y - 100)/Square.y_size)]:
+        if bool_lane[int((self.rect.y - 100)/others.Square.y_size)]:
             self.status = 'working'
         else:
             self.status = 'idle'
@@ -412,80 +170,12 @@ class Peashooter(plants.Peashooter):
         self.change_status()
         self.counter += 1
         self.image = self.frames[self.cur_patch_num]
-        if self.counter % 10 == 0:
-            self.cur_patch_num += 1
-        if self.cur_patch_num > (Peashooter.frame_num - 1):
-            self.cur_patch_num = 0
+        self.change_frame(10)
         now = pygame.time.get_ticks()
         if now - self.last >= self.between_bullet and self.status == 'working':
             self.last = now
             self.shoot_pea()
-        if self.HP <= 0:
-            self.kill()
-
-
-class Peabullet(bullets.Peabullet):
-
-    def __init__(self, x, y):
-        super(Peabullet, self).__init__(x, y)
-        self.add_to_screen()
-        allSprite.add(self, layer=bullets.Peabullet.layer)
-        bulletSprite.add(self)
-
-    def add_to_screen(self):
-        gameDisplay.blit(self.image, [self.rect.x, self.rect.y, Square.x_size, Square.y_size])
-
-    def update(self):
-        self.rect.x = self.rect.x + Peabullet.x_speed
-        self.rect.y = self.rect.y + Peabullet.y_speed
-        if 0 > self.rect.x or self.rect.x > display_width: #if bullet out of screen, kill it. Better performance
-            self.kill()
-        elif 0 > self.rect.y or self.rect.y > display_height:
-            self.kill()
-
-
-class Sun(others.Sun):
-    def __init__(self, x, y=100, speed=1):
-        super(Sun, self).__init__(x=x, y=y, speed = speed)
-        self.add_to_screen()
-        sunList.add(self)
-        allSprite.add(self, layer=9)
-
-    def add_to_screen(self):
-        gameDisplay.blit(self.image, [self.rect.x, self.rect.y, Sun.size, Sun.size])
-
-    def update(self):
-        now = pygame.time.get_ticks()
-        if now - self.last >= 15000:
-            self.kill()
-        self.rect.y += self.y_speed
-        if self.rect.bottom >= 500: #to improve performance
-            self.y_speed = 0
-
-class Snowball(others.Snowball):
-
-    def __init__(self,x, y):
-        super(Snowball, self).__init__(x=x, y=y)
-        allSprite.add(self, layer=8)
-        lawnmowerSprite.add(self)
-        self.add_to_screen()
-        self.sound_play = False #to ensure that sound is only played once. Bc sound in update, it keeps playing otherwise.
-
-    def add_to_screen(self):
-        gameDisplay.blit(self.image, [self.rect.x, self.rect.y, Snowball.width, Snowball.height])
-
-    def update(self):
-        if self.status == 'moving':
-            self.rect.x += self.speed
-            if not self.sound_play:
-                self.sound_play = True
-                snowball_sound.play(maxtime=3200)
-        if self.rect.x >= display_width:
-            self.kill()
-        for zombie in zombieSprite:
-            if self.rect.colliderect(zombie.rect):
-                self.status= 'moving'
-                zombie.kill()
+        self.check_dead()
 
 
 class PoleZombie(zombies.PoleZombie):
@@ -501,7 +191,7 @@ class PoleZombie(zombies.PoleZombie):
         self.has_pole = True
         self.at_frame_jumping = 0
         self.jumping_counter = 0
-        self.mark = False #so that the zombie wont eat the plant it just jumps over
+        self.mark = False  # so that the zombie wont eat the plant it just jumps over
         zombieSprite.add(self)
         allSprite.add(self, layer=zombies.PoleZombie.layer + self.level)
 
@@ -509,7 +199,7 @@ class PoleZombie(zombies.PoleZombie):
         if self.status != 'jumping':
             self.HP -= bullet.damage
             hitting_sound.play(maxtime=500)
-            if isinstance(bullet, Snowbullet):  # I dont want to stack slowness
+            if isinstance(bullet, bullets.Snowbullet):  # I dont want to stack slowness
                 self.condition.append('frost')
                 self.last = pygame.time.get_ticks()
 
@@ -517,8 +207,8 @@ class PoleZombie(zombies.PoleZombie):
         if self.has_pole:
             self.status = 'jumping'
             if not self.mark:
-                self.mark = plant #so that only one plant is self.mark forever. Sometimes when zombie
-                                  #jumps, it collide with another plant as well
+                self.mark = plant  # so that only one plant is self.mark forever. Sometimes when zombie
+                                   # jumps, it collide with another plant as well
         else:
             if plant is not self.mark:
                 self.status = 'eating'
@@ -535,9 +225,9 @@ class PoleZombie(zombies.PoleZombie):
         now = pygame.time.get_ticks()
         if 'frost' in self.condition:
             if self.speed == PoleZombie.speed:
-                self.speed = self.speed / 2
-                self.dps = self.dps / 2
-            if now - self.last >= Snowbullet.effect_time:
+                self.speed /= 2
+                self.dps /= 2
+            if now - self.last >= bullets.Snowbullet.effect_time:
                 self.speed = PoleZombie.speed
                 self.dps = PoleZombie.dps
                 self.condition.remove('frost')
@@ -630,7 +320,7 @@ class PoleZombie(zombies.PoleZombie):
                 self.has_pole = False
                 self.rect.bottom = 100 + 80*self.level
 
-        if 0 > self.rect.x or self.rect.x > display_width: #if bullet out of screen, kill it. Better performance
+        if 0 > self.rect.x or self.rect.x > display_width:  # if bullet out of screen, kill it. Better performance
             self.kill()
 
         elif 0 > self.rect.y or self.rect.y > display_height:
@@ -642,7 +332,7 @@ class PoleZombie(zombies.PoleZombie):
 
 class NormZombie(zombies.NormZombie):
 
-    def __init__(self,x):
+    def __init__(self, x):
         super(NormZombie, self).__init__()
         self.image = self.walking_frames[0]
         self.rect = self.image.get_rect()
@@ -657,7 +347,7 @@ class NormZombie(zombies.NormZombie):
         self.HP -= bullet.damage
 
         hitting_sound.play(maxtime=500)
-        if isinstance(bullet, Snowbullet):  # I dont want to stack slowness
+        if isinstance(bullet, bullets.Snowbullet):  # I dont want to stack slowness
             self.condition.append('frost')
             self.last = pygame.time.get_ticks()
 
@@ -674,9 +364,9 @@ class NormZombie(zombies.NormZombie):
         now = pygame.time.get_ticks()
         if 'frost' in self.condition:
             if self.speed == NormZombie.speed:
-                self.speed = self.speed/2
-                self.dps = self.dps/2
-            if now - self.last >= Snowbullet.effect_time:
+                self.speed /= 2
+                self.dps /= 2
+            if now - self.last >= bullets.Snowbullet.effect_time:
                 self.speed = NormZombie.speed
                 self.dps = NormZombie.dps
                 self.condition.remove('frost')
@@ -709,7 +399,6 @@ class NormZombie(zombies.NormZombie):
                 else:
                     self.image = self.walking_frames[self.at_frame_walking]
 
-
         elif self.status == 'eating':
             self.eating_counter += 1
             self.walking_counter = 0
@@ -732,7 +421,6 @@ class NormZombie(zombies.NormZombie):
                     self.image = pygame.transform.flip(self.eating_frames[self.at_frame_eating],True,False)
                 else:
                     self.image = self.eating_frames[self.at_frame_eating]
-
 
         if 0 > self.rect.x or self.rect.x > display_width: #if bullet out of screen, kill it. Better performance
             self.kill()
@@ -761,7 +449,7 @@ class PresentZombie(zombies.PresentZombie):
     def bullet_collide(self, bullet):
         self.HP -= bullet.damage
         hitting_sound.play(maxtime=500)
-        if isinstance(bullet, Snowbullet):  # I dont want to stack slowness
+        if isinstance(bullet, bullets.Snowbullet):  # I dont want to stack slowness
             self.condition.append('frost') #if this is the case- then there would be many frosts
             self.last = pygame.time.get_ticks()
 
@@ -778,9 +466,9 @@ class PresentZombie(zombies.PresentZombie):
         now = pygame.time.get_ticks()
         if 'frost' in self.condition:
             if self.speed == PresentZombie.speed:
-                self.speed = self.speed / 2
-                self.dps = self.dps / 2
-            if now - self.last >= Snowbullet.effect_time:
+                self.speed /= 2
+                self.dps /= 2
+            if now - self.last >= bullets.Snowbullet.effect_time:
                 self.speed = PresentZombie.speed
                 self.dps = PresentZombie.dps
                 self.condition.remove('frost')
@@ -800,16 +488,16 @@ class PresentZombie(zombies.PresentZombie):
                 if self.at_frame_walking > (PresentZombie.frame_num1 - 1):
                     self.at_frame_walking = 0
                 if 'muddled' in self.condition:
-                    self.image=pygame.transform.flip(self.walking_frames3[self.at_frame_walking],True,False)
+                    self.image = pygame.transform.flip(self.walking_frames3[self.at_frame_walking], True, False)
                 else:
-                    self.image=self.walking_frames3[self.at_frame_walking]
+                    self.image = self.walking_frames3[self.at_frame_walking]
             else:
                 if self.walking_counter % 15 == 0:
                     self.at_frame_walking += 1
                 if self.at_frame_walking > (PresentZombie.frame_num1 - 1):
                     self.at_frame_walking = 0
                 if 'muddled' in self.condition:
-                    self.image=pygame.transform.flip(self.walking_frames1[self.at_frame_walking],True,False)
+                    self.image = pygame.transform.flip(self.walking_frames1[self.at_frame_walking], True, False)
                 else:
                     self.image = self.walking_frames1[self.at_frame_walking]
 
@@ -822,9 +510,9 @@ class PresentZombie(zombies.PresentZombie):
                 if self.at_frame_eating > (PresentZombie.frame_num2 - 1):
                     self.at_frame_eating = 0
                 if 'muddled' in self.condition:
-                    self.image=pygame.transform.flip(self.eating_frames3[self.at_frame_eating],True,False)
+                    self.image = pygame.transform.flip(self.eating_frames3[self.at_frame_eating],True,False)
                 else:
-                    self.image=self.eating_frames3[self.at_frame_eating]
+                    self.image = self.eating_frames3[self.at_frame_eating]
             else:
                 if self.eating_counter % 5 == 0:
                     self.at_frame_eating += 1
@@ -843,7 +531,7 @@ class PresentZombie(zombies.PresentZombie):
                 if self.at_frame_walking > (PresentZombie.frame_num3 - 1):
                     self.at_frame_walking = 1
                 if 'muddled' in self.condition:
-                    self.image=pygame.transform.flip(self.walking_frames4[self.at_frame_walking],True,False)
+                    self.image=pygame.transform.flip(self.walking_frames4[self.at_frame_walking], True, False)
                 else:
                     self.image=self.walking_frames4[self.at_frame_walking]
             else:
@@ -852,9 +540,9 @@ class PresentZombie(zombies.PresentZombie):
                 if self.at_frame_walking > (PresentZombie.frame_num3 - 1):
                     self.at_frame_walking = 1
                 if 'muddled' in self.condition:
-                    self.image=pygame.transform.flip(self.walking_frames2[self.at_frame_walking],True,False)
+                    self.image = pygame.transform.flip(self.walking_frames2[self.at_frame_walking],True,False)
                 else:
-                    self.image=self.walking_frames2[self.at_frame_walking]
+                    self.image = self.walking_frames2[self.at_frame_walking]
             self.walking_counter += 1
             self.eating_counter = 0
 
@@ -878,7 +566,7 @@ class PresentZombie(zombies.PresentZombie):
                 if 'muddled' in self.condition:
                     self.image=pygame.transform.flip(self.eating_frames2[self.at_frame_eating],True,False)
                 else:
-                    self.image=self.eating_frames2[self.at_frame_eating]
+                    self.image = self.eating_frames2[self.at_frame_eating]
 
         if 0 > self.rect.x or self.rect.x > display_width: #if bullet out of screen, kill it. Better performance
             self.kill()
@@ -892,7 +580,7 @@ class PresentZombie(zombies.PresentZombie):
             self.kill()
 
 
-#to satisfy peashooter class. Cant hide these behind a function.
+# to satisfy peashooter/snowpea class. Cant hide these inside a function.
 is_invaded0 = is_invaded1 = is_invaded2 = is_invaded3 = is_invaded4 = False
 bool_lane = [is_invaded0, is_invaded1, is_invaded2, is_invaded3, is_invaded4]
 
@@ -900,48 +588,32 @@ bool_lane = [is_invaded0, is_invaded1, is_invaded2, is_invaded3, is_invaded4]
 zombieSprite = pygame.sprite.Group()
 sunList = pygame.sprite.Group()
 squareList = []
-allSprite = pygame.sprite.LayeredUpdates() #to update a portion of a map per frame
-cardSprite = pygame.sprite.Group() #a bunch of cards
-bulletSprite = pygame.sprite.Group() #a bunch of bullets
+allSprite = pygame.sprite.LayeredUpdates()  # to update a portion of a map per frame
+cardSprite = pygame.sprite.Group()  # a bunch of cards
+bulletSprite = pygame.sprite.Group()  # a bunch of bullets
 plantSprite = pygame.sprite.Group()
 lawnmowerSprite = pygame.sprite.Group()
 textSprite = pygame.sprite.Group()
 befuddled_zombie = pygame.sprite.Group()
 
-#function
+
+# function
 def display_message(message, color, y_displace = 0):
     textSurface = myfont.render(message, True, color)
     textRect = textSurface.get_rect()
     textRect.center = [(display_width-50)/2, (display_height-100)/2 + y_displace]
     gameDisplay.blit(textSurface, textRect)
 
-#MAP
+# MAP
 
 
-#MAIN LOOP
+# MAIN LOOP
 def gameloop():
     gameDisplay.fill(black)
     global bool_lane
     global is_invaded0, is_invaded1, is_invaded2, is_invaded3, is_invaded4
     global zombieSprite, sunList, squareList, allSprite, cardSprite, bulletSprite, plantSprite, befuddled_zombie
 
-    gameStarted = False
-    ls = pygame.image.load("miscellany\loadingscreen.png")
-    gameDisplay.blit(ls, [707, 500])
-
-    while gameStarted == False:
-        gameDisplay.blit(ls, [0, 0, 707, 500])
-        display_message('Press C to start the game or Q to quit', red, 50)
-        pygame.display.update()
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                exit()
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_q:
-                    exit()
-                elif event.key == pygame.K_c:
-                    gameStarted = True
-                    pygame.display.update()
 
     # Lists
     zombieSprite = pygame.sprite.Group()
@@ -975,14 +647,14 @@ def gameloop():
         ['A', 'A', 'A', 'A', 'A', 'A', 'A', 'A', 'A', 'A']
               ]
 
-    #MAP
+    # MAP
     squarelistlist = []
     x = 60
     y = 100
     for row in mapList:
         squares = []
         for column in row:
-            a = Square(x, y)
+            a = others.Square(x=x, y=y, gameDisplay=gameDisplay, squareList=squareList)
             x += 60
             squares.append(a)
         y += 80
@@ -990,13 +662,13 @@ def gameloop():
         squarelistlist.append(squares)
 
     fence = pygame.image.load(os.path.join(OTHER_FOLDER, 'fence.png'))
-    gameDisplay.blit(fence, [0,0])
+    gameDisplay.blit(fence, [0, 0])
     deck_image = pygame.image.load(os.path.join(OTHER_FOLDER, 'deck.png'))
     gameDisplay.blit(deck_image, [10, 10])
     shovel_box = pygame.image.load(os.path.join(OTHER_FOLDER, 'shovel-box.png'))
     gameDisplay.blit(shovel_box, [420, 15])
 
-    #add some tiles
+    # add some tiles
     tile_image = pygame.image.load(os.path.join(OTHER_FOLDER, 'red-tile.jpg'))
     for i in range(5):
         gameDisplay.blit(tile_image,[660, (100+i*80)])
@@ -1004,31 +676,27 @@ def gameloop():
     background = gameDisplay.copy()
 
     for i in range(5):
-        Snowball(0, (100 + i * 80))
+        others.Snowball(0, (100 + i * 80), gameDisplay=gameDisplay, allSprite=allSprite, lawnmowerSprite=lawnmowerSprite)
 
-    sunbox = SunBox()
-    SnowPea_card()
-    Peashooter_card()
-    Sunflower_card()
-    Wallnut_card()
-    PotatoMine_card()
-    Hypnoshroom_card()
-    Shovel()
+    sunbox = others.SunBox(gameDisplay, allSprite)
+    cards.SnowPea_card(available=False, gameDisplay=gameDisplay, x=315, y=20, allSprite=allSprite, cardSprite=cardSprite)
+    cards.Peashooter_card(available=False, gameDisplay=gameDisplay, x=95, y=20, allSprite=allSprite, cardSprite=cardSprite)
+    cards.Sunflower_card(available=False, gameDisplay=gameDisplay, x=150, y=20, allSprite=allSprite, cardSprite=cardSprite)
+    cards.Wallnut_card(available=False, gameDisplay=gameDisplay, x=205, y=20, allSprite=allSprite, cardSprite=cardSprite)
+    cards.PotatoMine_card(available=False, gameDisplay=gameDisplay, x=260, y=20, allSprite=allSprite, cardSprite=cardSprite)
+    cards.Hypnoshroom_card(available=False, gameDisplay=gameDisplay, x=370, y=20, allSprite=allSprite, cardSprite=cardSprite)
+    others.Shovel(x=425, y=20, gameDisplay=gameDisplay, allSprite=allSprite, cardSprite=cardSprite)
 
     pygame.display.update()
 
-    planning_stage = stage1 = stage2 = stage3 = False #stage is between waves
+    planning_stage = stage1 = stage2 = stage3 = False  # stage is between waves
     wave1 = wave2 = wave3 = False
     wave01 = wave02 = wave03 = False
 
-
-
-
     while not gameExit:
-
         while gameOver:
             gameDisplay.fill(white)
-            display_message('GAME OVER!', red, -50)
+            display_message('Game over', red, -50)
             display_message('Press C to play again or Q to quit', black, 50)
             pygame.display.update()
             for event in pygame.event.get():
@@ -1042,12 +710,11 @@ def gameloop():
                     elif event.key == pygame.K_c:
                         gameloop()
 
-
-        #if you survive the final wave of zombie, you win
+        # if you survive the final wave of zombie, you win
 
         while gameWin:
             gameDisplay.fill(white)
-            display_message('YOU WON!', red, -50)
+            display_message('Game Win', red, -50)
             display_message('Press C to play again or Q to quit', black, 50)
             pygame.display.update()
             for event in pygame.event.get():
@@ -1062,15 +729,15 @@ def gameloop():
                         gameloop()
 
         counter += 1
-        if counter % (5*FPS) == 0: #create new sun every five secs. falling randomly
+        if counter % (5*FPS) == 0:  # create new sun every five secs. falling randomly
             x = random.randint(0, 550)
-            Sun(x=x, y=100, speed=1)
+            others.Sun(x=x, y=100, speed=1, gameDisplay=gameDisplay, allSprite=allSprite, sunList=sunList)
 
         if counter == 20*FPS:
             NormZombie(700)
-            PoleZombie(690)
+
         elif counter == 30 * FPS:
-            PresentZombie(700)
+            NormZombie(700)
             planning_stage = True
 
         if planning_stage:
@@ -1087,11 +754,11 @@ def gameloop():
            stage1 = True
 
         if stage1:
-            if counter % (8*FPS) == 0:
+            if counter % (10*FPS) == 0:
                 PresentZombie(700)
             elif counter % (20*FPS) == 0:
                 x = 0
-                for i in range(random.randint(2, 3)):
+                for i in range(random.randint(1, 3)):
                     NormZombie(700-x)
                     x += 10
             elif counter % (50*FPS) == 0:
@@ -1099,15 +766,16 @@ def gameloop():
 
         if counter == 110 * FPS:
             stage1 = False
-            Message('A huge wave of zombie is approaching!', red, 40, 3000)
+            others.Message('A huge wave of zombie is approaching!', red, 40, 3000, display_width, display_height,
+                           gameDisplay, allSprite, textSprite)
 
         elif counter == 113 * FPS:
             wave1 = True
-            wave01 = True #to make sure
+            wave01 = True  # to make sure
 
         if wave1:
             x = 0
-            for i in range(5):
+            for i in range(4):
                 zom = NormZombie(700-x)
                 first_wave_zombie.add(zom)
                 x += 7
@@ -1120,42 +788,43 @@ def gameloop():
             for i in range(2):
                 zom = PoleZombie(700-x)
                 first_wave_zombie.add(zom)
-            wave1 = False #so that zombies don't ooze out in tides
+            wave1 = False  # so that zombies don't ooze out in tides
 
         if wave01 and len(first_wave_zombie) == 0:
             wave01 = False
             stage2 = True
 
         if stage2:
-            if counter % (6*FPS) == 0:
+            if counter % (8*FPS) == 0:
                 NormZombie(700)
                 NormZombie(690)
                 PoleZombie(680)
-            elif counter % (15*FPS) == 0:
+            elif counter % (20*FPS) == 0:
                 x = 0
                 PresentZombie(700)
                 for i in range(random.randint(1, 3)):
                     NormZombie(700 - x)
                     x += 10
-            elif counter % (30*FPS) == 0:
+            elif counter % (35*FPS) == 0:
                 PoleZombie(700)
 
         if counter == 170 * FPS:
             stage2 = False
             wave02 = True
-            Message('A huge wave of zombie is approaching!', red, 40, 3000)
+            others.Message('A huge wave of zombie is approaching!', red, 40, 3000, display_width, display_height,
+                           gameDisplay, allSprite, textSprite)
 
-        elif counter == 173 *FPS:
+        elif counter == 173 * FPS:
             wave2 = True
 
         if wave2:
             x = 0
-            for i in range(6):
+            for i in range(4):
                 zom = NormZombie(700-x)
                 second_wave_zombie.add(zom)
                 x+=7
             x = 0
-            for i in range(3):
+            for i in range(2):
                 zom = PresentZombie(700-x)
                 second_wave_zombie.add(zom)
                 x+=5
@@ -1170,14 +839,14 @@ def gameloop():
             stage3 = True
 
         if stage3:
-            if counter % (5*FPS) == 0:
+            if counter % (8*FPS) == 0:
                 x = 0
                 for i in range(random.randint(1,3)):
                     NormZombie(700-x)
                     x += 10
-            elif counter % (14*FPS) == 0:
+            elif counter % (16*FPS) == 0:
                 x = 0
-                for i in range(random.randint(2, 4)):
+                for i in range(random.randint(1, 4)):
                     NormZombie(700-x)
                     x += 7
                 x = 0
@@ -1190,20 +859,22 @@ def gameloop():
 
         if counter == 210 * FPS:
             stage3 = False
-            Message('A huge wave of zombie is approaching!', red, 40, 3000)
+            others.Message('A huge wave of zombie is approaching!', red, 40, 3000, display_width, display_height,
+                           gameDisplay, allSprite, textSprite)
         elif counter == 213 * FPS:
-            Message('Final Wave', red, 60, 2000)
+            others.Message('Final Wave!', red, 60, 2000, display_width, display_height,
+                           gameDisplay, allSprite, textSprite)
         elif counter == 215 * FPS:
             wave3 = True
 
         if wave3:
             x = 0
-            for i in range(11):
+            for i in range(7):
                 zom = NormZombie(700 - x)
                 final_wave_Zombie.add(zom)
                 x += 5
             x=0
-            for i in range(5):
+            for i in range(2):
                 zom = PresentZombie(700-x)
                 final_wave_Zombie.add(zom)
                 x+=5
@@ -1241,91 +912,89 @@ def gameloop():
                         break
                 for sun in sunList:
                     if sun.rect.collidepoint(mx, my):
-                        sunbox.update(25)
+                        sunbox.update(25, gameDisplay)
                         sun.kill()
-
 
             if MouseDown and Target:
                 Target.move(mx, my)
 
             if MouseRelease and Target:
-                square_x = int(mx/Square.x_size)-1
-                square_y=int(my/Square.y_size)-1
-                if isinstance(Target,Peashooter_card):
+                square_x = int(mx/others.Square.x_size)-1
+                square_y = int(my/others.Square.y_size)-1
+                if isinstance(Target, cards.Peashooter_card):
                     if 0 <= square_x <= 9 and 0 <= square_y <= 4 \
-                    and not pygame.sprite.spritecollide(squarelistlist[square_y][square_x], plantSprite, dokill = False):
+                    and not pygame.sprite.spritecollide(squarelistlist[square_y][square_x], plantSprite, dokill=False):
                         Peashooter(squarelistlist[square_y][square_x].rect.left, squarelistlist[square_y][square_x].rect.top)
-                        Peashooter_card()
-                        sunbox.update(-Peashooter_card.cost)
-                    else: #do not activate cooldown, nor cost user sunScore
-                        Peashooter_card(available = True)
+                        cards.Peashooter_card(available=False, gameDisplay=gameDisplay, x=95, y=20, allSprite=allSprite, cardSprite=cardSprite)
+                        sunbox.update(-cards.Peashooter_card.cost, gameDisplay)
+                    else:  # do not activate cooldown, nor cost user sunScore
+                        cards.Peashooter_card(available=True, gameDisplay=gameDisplay, x=95, y=20, allSprite=allSprite, cardSprite=cardSprite)
 
-                elif isinstance(Target,SnowPea_card):
+                elif isinstance(Target, cards.SnowPea_card):
                     if 0 <= square_x <= 9 and 0 <= square_y <= 4 \
-                    and not pygame.sprite.spritecollide(squarelistlist[square_y][square_x], plantSprite, dokill = False):
+                    and not pygame.sprite.spritecollide(squarelistlist[square_y][square_x], plantSprite, dokill=False):
                         SnowPea(squarelistlist[square_y][square_x].rect.left, squarelistlist[square_y][square_x].rect.top)
-                        SnowPea_card()
-                        sunbox.update(-SnowPea_card.cost)
-                    else: #do not activate cooldown, nor cost user sunScore
-                        SnowPea_card(available = True)
+                        cards.SnowPea_card(available=False, gameDisplay=gameDisplay, x=315, y=20, allSprite=allSprite, cardSprite=cardSprite)
+                        sunbox.update(-cards.SnowPea_card.cost, gameDisplay)
+                    else:  # do not activate cooldown, nor cost user sunScore
+                        cards.SnowPea_card(available=True, gameDisplay=gameDisplay, x=315, y=20, allSprite=allSprite, cardSprite=cardSprite)
 
-                elif isinstance(Target, Sunflower_card):
+                elif isinstance(Target, cards.Sunflower_card):
                     if 0 <= square_x <= 9 and 0 <= square_y <= 4 \
-                    and not pygame.sprite.spritecollide(squarelistlist[square_y][square_x], plantSprite, dokill = False):
+                    and not pygame.sprite.spritecollide(squarelistlist[square_y][square_x], plantSprite, dokill=False):
                         Sunflower(squarelistlist[square_y][square_x].rect.left, squarelistlist[square_y][square_x].rect.top)
-                        Sunflower_card()
-                        sunbox.update(-Sunflower_card.cost)
+                        cards.Sunflower_card(available=False, gameDisplay=gameDisplay, x=150, y=20, allSprite=allSprite, cardSprite=cardSprite)
+                        sunbox.update(-cards.Sunflower_card.cost, gameDisplay)
                     else:
-                        Sunflower_card(available= True)
+                        cards.Sunflower_card(available=True, gameDisplay=gameDisplay, x=150, y=20, allSprite=allSprite, cardSprite=cardSprite)
 
-                elif isinstance(Target, Wallnut_card):
+                elif isinstance(Target, cards.Wallnut_card):
                     if 0 <= square_x <= 9 and 0 <= square_y <= 4 \
-                    and not pygame.sprite.spritecollide(squarelistlist[square_y][square_x], plantSprite, dokill = False):
+                    and not pygame.sprite.spritecollide(squarelistlist[square_y][square_x], plantSprite, dokill=False):
                         Wallnut(squarelistlist[square_y][square_x].rect.left, squarelistlist[square_y][square_x].rect.top)
-                        Wallnut_card()
-                        sunbox.update(-Wallnut_card.cost)
+                        cards.Wallnut_card(available=False, gameDisplay=gameDisplay, x=205, y=20, allSprite=allSprite, cardSprite=cardSprite)
+                        sunbox.update(-cards.Wallnut_card.cost, gameDisplay)
                     else:
-                        Wallnut_card(available= True)
+                        cards.Wallnut_card(available=True, gameDisplay=gameDisplay, x=205, y=20, allSprite=allSprite, cardSprite=cardSprite)
 
-                elif isinstance(Target, Hypnoshroom_card):
+                elif isinstance(Target, cards.Hypnoshroom_card):
                     if 0 <= square_x <= 9 and 0 <= square_y <= 4 \
-                    and not pygame.sprite.spritecollide(squarelistlist[square_y][square_x], plantSprite, dokill = False):
+                    and not pygame.sprite.spritecollide(squarelistlist[square_y][square_x], plantSprite, dokill=False):
                         Hypnoshroom(squarelistlist[square_y][square_x].rect.left, squarelistlist[square_y][square_x].rect.top)
-                        Hypnoshroom_card()
-                        sunbox.update(-Hypnoshroom_card.cost)
+                        cards.Hypnoshroom_card(available=False, gameDisplay=gameDisplay, x=370, y=20, allSprite=allSprite, cardSprite=cardSprite)
+                        sunbox.update(-cards.Hypnoshroom_card.cost, gameDisplay)
                     else:
-                        Hypnoshroom_card(available= True)
+                        cards.Hypnoshroom_card(available=True, gameDisplay=gameDisplay, x=370, y=20, allSprite=allSprite, cardSprite=cardSprite)
 
-                elif isinstance(Target,PotatoMine_card):
+                elif isinstance(Target, cards.PotatoMine_card):
                     if 0 <= square_x <= 9 and 0 <= square_y <= 4 \
                     and not pygame.sprite.spritecollide(squarelistlist[square_y][square_x], plantSprite, dokill=False):
                         PotatoMine(squarelistlist[square_y][square_x].rect.left, squarelistlist[square_y][square_x].rect.top)
-                        PotatoMine_card()
-                        sunbox.update(-PotatoMine_card.cost)
+                        cards.PotatoMine_card(available=False, gameDisplay=gameDisplay, x=260, y=20, allSprite=allSprite, cardSprite=cardSprite)
+                        sunbox.update(-cards.PotatoMine_card.cost, gameDisplay)
                     else:
-                        PotatoMine_card(available=True)
+                        cards.PotatoMine_card(available=True, gameDisplay=gameDisplay, x=260, y=20, allSprite=allSprite, cardSprite=cardSprite)
 
-                elif isinstance(Target, Shovel):
+                elif isinstance(Target, others.Shovel):
                     for plant in plantSprite:
                         if plant.rect.collidepoint(mx, my):
                             plant.kill()
                             break
-                    Shovel()
+                    others.Shovel(x=425, y=20, gameDisplay=gameDisplay, allSprite=allSprite, cardSprite=cardSprite)
 
                 Target.kill()
                 Target = None
-
 
         MousePressed = False
         MouseRelease = False
 
         plantSprite.update()
-        bulletSprite.update()
+        bulletSprite.update(display_width, display_height)
         sunList.update()
         zombieSprite.update()
-        cardSprite.update()
+        cardSprite.update(FPS)
         sunList.update()
-        lawnmowerSprite.update()
+        lawnmowerSprite.update(snowball_sound, display_width, zombieSprite)
         textSprite.update()
         befuddled_zombie.update()
 
@@ -1334,14 +1003,14 @@ def gameloop():
 
         for zombie in zombieSprite:
             bool_lane[zombie.level - 1] = True
-            bullets = pygame.sprite.spritecollide(zombie, bulletSprite, dokill = False) #list of bullets collding with zombie
+            bullets = pygame.sprite.spritecollide(zombie, bulletSprite, dokill=False)  # list of bullets collding with zombie
             if bullets:
                 for bullet in bullets:
                     zombie.bullet_collide(bullet)
                     bullet.kill()
-            plants = pygame.sprite.spritecollide(zombie, plantSprite, dokill = False)
+            plants = pygame.sprite.spritecollide(zombie, plantSprite, dokill=False)
 
-            if plants: #a zombie can only eat a plant once at any time. so list length is 1
+            if plants:  # a zombie can only eat a plant once at any time. so list length is 1
                 zombie.plant_collide(plants[0])
                 if isinstance(plants[0], PotatoMine) and plants[0].explodable and not plants[0].dead_already:
                     zombie.kill()
@@ -1381,7 +1050,7 @@ def gameloop():
                         traitorZombie.plant_collide(bad_zombie)
                         eating = True
                         break
-                if eating == False:
+                if not eating:
                     if isinstance(traitorZombie, PoleZombie):
                         if traitorZombie.status != 'jumping':
                             traitorZombie.status = 'moving'
@@ -1404,4 +1073,3 @@ def gameloop():
     quit()
 
 gameloop()
-

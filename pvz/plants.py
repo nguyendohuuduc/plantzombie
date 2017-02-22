@@ -4,6 +4,7 @@ from abc import abstractmethod
 DIR_ROOT = os.path.dirname(os.path.abspath(__file__))
 PLANT_FOLDER = os.path.join(DIR_ROOT, 'plant_images')
 
+
 #Abstract Base Class
 class Plant(pygame.sprite.Sprite):
     layer = 1
@@ -14,7 +15,8 @@ class Plant(pygame.sprite.Sprite):
         self.frames = []
         self.counter = 0
         self.HP = HP
-        for i in range(frame_num):
+        self.frame_num = frame_num
+        for i in range(self.frame_num):
             self.frames.append(sheet.subsurface(i*x_size, 0, x_size, y_size))
         self.image = self.frames[0]
         self.rect = self.image.get_rect()
@@ -25,6 +27,17 @@ class Plant(pygame.sprite.Sprite):
     @abstractmethod
     def add_to_screen(self):
         """add plants to screen the moment of initialization"""
+
+    def change_frame(self, switch_counter):
+        if self.counter % switch_counter == 0:
+            self.cur_patch_num += 1
+        if self.cur_patch_num > (self.frame_num-1):
+            self.cur_patch_num = 0
+
+    def check_dead(self):
+        if self.HP <= 0:
+            self.kill()
+
 
 class Hypnoshroom(Plant):
     sheet = pygame.image.load(os.path.join(PLANT_FOLDER, 'hypnoshroomsheet.png'))
@@ -55,6 +68,7 @@ class PotatoMine(Plant):
         self.explodable = False
         self.dead_already = False
 
+
 class Wallnut(Plant):
     sheet = pygame.image.load(os.path.join(PLANT_FOLDER, 'wallnutsheet.png'))
     x_size = 60
@@ -67,6 +81,14 @@ class Wallnut(Plant):
                                       Wallnut.sheet, Wallnut.x_size,
                                       Wallnut.y_size, x, y)
         self.last = pygame.time.get_ticks()
+
+    def change_frame(self):
+        if self.HP <= 120:
+            self.image = self.frames[1]
+        if self.HP <= 80:
+            self.image = self.frames[2]
+        if self.HP <= 40:
+            self.image = self.frames[3]
 
 
 class SnowPea(Plant):

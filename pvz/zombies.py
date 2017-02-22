@@ -5,7 +5,9 @@ import os
 DIR_ROOT = os.path.dirname(os.path.abspath(__file__))
 ZOMBIE_FOLDER = os.path.join(DIR_ROOT, 'zombie_images')
 
-#Abstract Base Class
+# Abstract Base Class
+
+
 class Zombie(pygame.sprite.Sprite):
     layer = 3
 
@@ -49,7 +51,7 @@ class NormZombie(Zombie):
         for i in range(NormZombie.frame_num3):
             self.walking_frozen_frames.append(NormZombie.sheet_walking_frozen.subsurface(i * NormZombie.x_size, 0, NormZombie.x_size, NormZombie.y_size))
         self.eating_frozen_frames=[]
-        for i in range (NormZombie.frame_num4):
+        for i in range(NormZombie.frame_num4):
             self.eating_frozen_frames.append(NormZombie.sheet_eating_frozen.subsurface(i * NormZombie.x_size, 0, NormZombie.x_size, NormZombie.y_size))
 
 
