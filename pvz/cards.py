@@ -38,7 +38,10 @@ class Card(pygame.sprite.Sprite):  # Abstract Base Class. Don't touch.
         now = pygame.time.get_ticks()
         if now - self.last >= self.cooldown and not self.available:
             self.available = True
-        self.image = self.frames[self.cur_patch_num]
+        try:
+            self.image = self.frames[self.cur_patch_num]
+        except IndexError:
+            print(self.cur_patch_num)
         if self.available:
             self.cur_patch_num = 0
             self.counter = 0
